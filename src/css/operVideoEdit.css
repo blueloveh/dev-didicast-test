@@ -1,0 +1,20 @@
+.operVideoEdit-button {
+    color: white;
+    background-color: #4DAED3;
+    padding: 10px 15px;
+    width: 100%;
+    border: None;
+    border-radius: 13px;
+    font-weight: 500;
+    margin: 5px;
+}
+
+.operVideoEdit-input {
+    padding: 10px 15px;
+    width: 99%;
+    border: 1px solid #aaa;
+    border-radius: 13px;
+    font-weight: 500;
+    margin: 5px;
+    padding: 10px 0px;
+}

@@ -1,0 +1,173 @@
+.operMain-nav {
+    display: flex;
+    align-items: center;
+    height: 60px;
+    width: 99.1vw;
+    margin-bottom: 20px;
+
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.operMain-nav-left {
+    padding-left: 30px;
+    padding-top: 20px;
+}
+
+.operMain-nav-second {
+    padding: 30px;
+    padding-top: 50px;
+    padding-left: 70px;
+    cursor: pointer; 
+
+    color: #4DAED3;
+}
+
+.operMain-nav-third {
+    padding: 30px;
+    padding-top: 50px;
+    cursor: pointer; 
+}
+
+.operMain-nav-right {
+    padding-left: 30px;
+    padding-top: 20px;
+    position: absolute;
+    right: 30px;
+    cursor: pointer; 
+}
+
+.operMain-didicast-image {
+    height: 35px;
+}
+
+.operMain-profile-image {
+    height: 35px;
+}
+
+.operMain-class-container {
+    margin: 0 auto;
+    width: 70vw;
+}
+
+.operMain-tap-container {
+    width: 50vw;
+}
+
+.operMain-tap-item {
+    margin-left: 30px;
+    font-size: 20px;
+    font-weight: 500;
+    cursor: pointer; 
+}
+
+.operMain-class-list {
+    margin: 0 auto;
+}
+
+.operMain-class-list-item {
+    width: 320px; 
+    display: inline-block;
+    margin: 0 auto; 
+    padding: 10px;
+    padding-top: 0px;
+    margin: 5px;
+}
+
+.operMain-class-list-create {
+    width: 300px;
+    height: 168px;
+    background-color: #4DAED3;
+    margin: 0 auto;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    text-align: center;
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+}
+
+.operMain-class-list-create:hover {
+    filter: brightness(90%);
+}
+
+.operMain-class-list-video {
+    width: 300px;
+    height: 168px;
+    background-color: #d9d9d9;
+    margin: 0 auto;
+    cursor: pointer; 
+}
+
+.operMain-class-list-info {
+    display: flex;
+    width: 320px;
+    text-align: left;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.operMain-class-list-video-info-number {
+    width: 40px;
+    padding: 2px 0px 5px 5px;
+    font-size: 35px;
+    font-weight: 700;
+}
+
+.operMain-class-list-video-info-title {
+    height: 35px;
+    width: 230px;
+
+    padding: 10px 10px 0px 10px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.operMain-class-list-video-info-bottom {
+    height: 40px;
+    width: 120%;
+
+    padding: 0px 10px 10px 10px;
+}
+
+.operMain-class-list-video-button {
+    width: 100px;
+    float: right;
+    background-color: #4DAED3;
+    color: white;
+    border: None;
+    padding: 5px 25px 5px 25px;
+    border-radius: 8px;
+    font-weight: 500;
+    margin-top: 3px;
+    margin-right: 5px;
+    cursor: pointer; 
+}
+
+.operMain-video-tag {
+    color: white;
+    padding: 5px 10px 5px 10px;
+    background-color: #16334F;
+    border-radius: 30px;
+    margin: 0px 0px 25px 5px;
+    float: left;
+    font-size: 14px;
+    cursor: pointer; 
+}
+
+
+.operMain-footer {
+    background-color: #657081;
+    color: white;
+
+    padding: 40px;
+}

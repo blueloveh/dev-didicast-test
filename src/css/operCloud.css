@@ -1,0 +1,149 @@
+.operCloud-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.operCloud-main {
+}
+
+.operCloud-button {
+    width: 260px;
+    background-color: #4DAED3;
+    border: None;
+    border-radius: 15px;
+    padding: 15px 30px 15px 30px;
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+	cursor: pointer; 
+
+    margin: 10px 100px 40px 100px;
+}
+
+.radio {
+	display: block;
+	position: relative;
+	background: none;
+    margin: 5px 5px 5px 7px;
+}
+
+.radio.red 	input[type="radio"]:checked + label:after {
+	background: #4DAED3; 
+}
+
+.radio input[type="radio"] {
+	opacity: 0 !important;
+}
+
+.radio input[type="radio"] + label {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding-left: 2em;
+	color: #000;
+
+    font-size: 18px;
+}
+
+.radio input[type="radio"] + label:before {
+	-webkit-transition: -webkit-box-shadow 0.4s ease;
+	-moz-transition: -moz-box-shadow 0.4s ease;
+	transition: box-shadow 0.4s ease;
+	box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+	position: absolute;
+	top: 0;
+	left: 0;
+	content: '';
+	width: 1.6rem;
+	height: 1.6rem;
+	background-color: none;
+	border: 1px solid #4DAED3;
+	border-radius: 500em;
+	z-index: 5;
+	cursor: pointer; 
+}
+
+.radio input[type="radio"]:checked + label:before {
+	border: 1px solid #4DAED3;
+	box-shadow: 0 0 0px 2px #FFF inset;
+}
+
+.radio input[type="radio"] + label:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+	-webkit-transition: -webkit-transform 0.4s cubic-bezier(0.45, 1.8, 0.5, 0.75);
+	-moz-transition: -moz-transform 0.4s cubic-bezier(0.45, 1.8, 0.5, 0.75);
+	transition: transform 0.4s cubic-bezier(0.45, 1.8, 0.5, 0.75);
+	-webkit-transform: scale(0, 0);
+	-moz-transform: scale(0, 0);
+	-ms-transform: scale(0, 0);
+	-o-transform: scale(0, 0);
+	transform: scale(0, 0);
+	position: absolute;
+	top: 0.14em;
+	left: 0.125em;
+	content: '';
+	width: 1.3rem;
+	height: 1.3rem;
+	background-color: #4DAED3;
+	box-shadow: 0 0 0px 2px #FFF inset;
+	border-radius: 500em;
+}
+
+.radio input[type="radio"]:checked + label:after {
+	-webkit-transform: scale(1, 1);
+	-moz-transform: scale(1, 1);
+	-ms-transform: scale(1, 1);
+	-o-transform: scale(1, 1);
+	transform: scale(1, 1);
+}
+
+.operCloud-table {
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+.operCloud-table-header {
+    background-color: #455C72;
+    
+    color: white;
+    font-size: 23px;
+    font-weight: 700;
+    padding: 10px 0px;
+
+	text-align: center;
+}
+
+
+.operCloud-table > :nth-child(1) {
+    width: 50%;
+    border-radius: 20px 0 0 0;
+	padding-left: 16%;
+	text-align: center;
+}
+
+.operCloud-table > :nth-child(2) {
+    width: 40%;
+}
+
+.operCloud-table > :nth-child(3) {
+    width: 10%;
+    border-radius: 0 20px 0 0;
+	text-align: left;
+}
+
+.operCloud-table-row {
+    border-bottom: 1px solid #d9d9d9;
+    border-collapse: collapse;
+    font-weight: 500;
+}
+
+.operCloud-table-row > td {
+	padding: 10px 0px 0px 10px;
+    height: 50px;
+}
