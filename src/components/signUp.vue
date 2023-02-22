@@ -52,8 +52,15 @@ export default {
       ).then((res) => {
         // token을 로컬스토리지에 저장
         localStorage.setItem('token', res.data.authorisation.token);
+        console.log(res.data)
+        
         if(res.data.user.role == "user"){
           this.$router.push('/userMain')
+          localStorage.setItem('role', "user");
+        }
+        if(res.data.user.role == "oper"){
+          this.$router.push('/userMain')
+          localStorage.setItem('role', "oper");
         }
       }).catch(function (error) {
         console.log(error);

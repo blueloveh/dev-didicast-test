@@ -6,6 +6,7 @@ import userVideo from '@/components/user/userVideo.vue';
 import operMain from '@/components/oper/operMain.vue';
 import operCloud from '@/components/oper/operCloud.vue';
 import operCreate from '@/components/oper/operCreate.vue';
+import operVideo from '@/components/oper/operVideo.vue';
 
 const routes = [
     {
@@ -35,6 +36,10 @@ const routes = [
     {
         path: "/video",
         component: userVideo,
+    },
+    {
+        path: "/archiveVideo",
+        component: operVideo,
     }
   ];
   

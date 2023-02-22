@@ -1,13 +1,27 @@
 <template>
     <div class="userMain-container">
         <!-- nav bar -->
-        <div class="userMain-nav">
+        <div class="row justify-content-end p-3 m-0">
             <!-- left : didicast image -->
-            <div class="userMain-nav-left">
+            <div v-if="role == 'user'"
+            class="col-11">
                 <img class="userMain-didicast-image" :src="require('@/img/didicast_logo.png')" />
             </div>
+            <div v-if="role == 'oper'"
+            class="col-1">
+                <img class="userMain-didicast-image" :src="require('@/img/didicast_logo.png')" />
+            </div>
+
+            <!-- 영상 아카이브 (운영자 경우) -->
+            <div v-if="role == 'oper'"
+            class="col-10" style="display: flex; justify-content: flex-end;">
+                <button class="userMain-video-button p-2" style="background-color: #aaa;"
+                    @click="$router.push('/operCloud')">
+                    영상 아카이브
+                </button>
+            </div>
             <!-- right : user info -->
-            <div class="userMain-nav-right">
+            <div class="col-1" style="display: flex; justify-content: flex-end;">
                 <!-- user name -->
                 <!-- <span>Miseon</span> -->
                 <!-- user image -->
@@ -31,6 +45,8 @@
                 <!-- 캐러셀 -->
                 <Slide v-for="i in lecture" :key="i" class="userMain-register-carousel-item">
                     <div class="userMain-register-carousel-video">
+                        <img :src="i.thumbnail" crossorigin="anonymous" />
+                        <!-- {{ i.thumbnail }} -->
                     </div>
                     <div class="userMain-register-video-info">
                         <!-- 강의 번호 -->
@@ -48,16 +64,23 @@
 
                                     <span v-if="i.lecture_type == 'vod'">동영상</span>
                                 </span>
-                                <button v-if="i.price == 0" @click="user_route_video_page(i)" class="userMain-video-button">
+                                <button v-if="i.price == 0 && role == 'user'" @click="user_route_video_page(i)" class="userMain-video-button">
                                     수강하기
                                 </button>
-                                <button v-else-if="i.paid = true" @click="user_route_video_page(i)"
+                                <button v-else-if="i.paid == true && role == 'user'" @click="user_route_video_page(i)"
                                     class="userMain-video-button">
                                     수강하기
                                 </button>
-                                <button v-else class="userMain-video-button
-                                    userMain-video-button-buy">
+                                <button v-else-if="role == 'user'" class="userMain-video-button
+                                            userMain-video-button-buy" @click="lecture_buy(i)">
                                     {{ i.price }} 원 구매하기
+                                </button>
+                                <button v-else-if="i.lecture_type == 'vod' && role == 'oper'" class="userMain-video-button" @click="user_route_video_page(i)">
+                                    확인하기
+                                </button>
+                                <button v-else-if="i.lecture_type == 'live' && role == 'oper'" class="userMain-video-button
+                                            userMain-video-button-buy" @click="user_route_video_page(i)">
+                                    입장하기
                                 </button>
                             </div>
                         </div>
@@ -85,6 +108,8 @@
                 <!-- 캐러셀 -->
                 <Slide v-for="i in lecture" :key="i" class="userMain-register-carousel-item">
                     <div class="userMain-register-carousel-video">
+                        <img :src="i.thumbnail" />
+                        <!-- {{ i.thumbnail }} -->
                     </div>
                     <div class="userMain-register-video-info">
                         <!-- 강의 번호 -->
@@ -110,7 +135,7 @@
                                     수강하기
                                 </button>
                                 <button v-else class="userMain-video-button
-                                    userMain-video-button-buy">
+                                            userMain-video-button-buy">
                                     {{ i.price }} 원 구매하기
                                 </button>
                             </div>
@@ -139,6 +164,8 @@
                 <!-- 캐러셀 -->
                 <Slide v-for="i in lecture" :key="i" class="userMain-register-carousel-item">
                     <div class="userMain-register-carousel-video">
+                        <img :src="i.thumbnail" />
+                        <!-- {{ i.thumbnail }} -->
                     </div>
                     <div class="userMain-register-video-info">
                         <!-- 강의 번호 -->
@@ -164,7 +191,7 @@
                                     수강하기
                                 </button>
                                 <button v-else class="userMain-video-button
-                                    userMain-video-button-buy">
+                                            userMain-video-button-buy">
                                     {{ i.price }} 원 구매하기
                                 </button>
                             </div>
@@ -216,6 +243,7 @@ export default {
     data() {
         return {
             lecture: [],
+            role: null,
             // carousel settings
             settings: {
                 itemsToShow: 1,
@@ -246,14 +274,22 @@ export default {
     created: async function () {
         const token = 'Bearer ' + localStorage.getItem('token')
         await axios.get(
-            'https://api-government.didisam.com/api/lecture',
-            {
-                headers: {
-                    Authorization: token
-                }
-            }).then((res) => {
-                this.lecture = res.data.result;
-            })
+            'https://api-government.didisam.com/api/lecture/',
+        {
+            headers: {
+                Authorization: token
+            }
+        }).then((res) => {
+            this.lecture = res.data.result;
+            console.log(this.lecture)
+        })
+
+        this.role = localStorage.getItem('role')
+    },
+    mounted() {
+        for (var i = 0; i < this.lecture.length; i++) {
+            console.log(this.lecture[i])
+        }
     },
     props: {
     },
@@ -292,17 +328,57 @@ export default {
                         Authorization: token
                     }
                 }).then((res) => {
-                    const video_url = res.data.result.video_url;
+                    if (now_lecture.lecture_type == 'vod') {
+                        const video_url = res.data.result.video_url;
 
-                    this.$router.push({
-                        path: '/video',
-                        query: {
-                            // router query push할 때, JSON 데이터를 유지하려면 stringfy와 parse 과정이 필요하다.
-                            lecture: JSON.stringify(now_lecture),
-                            video_url: video_url
-                        }
-                    })
+                        this.$router.push({
+                            path: '/video',
+                            query: {
+                                // router query push할 때, JSON 데이터를 유지하려면 stringfy와 parse 과정이 필요하다.
+                                lecture: JSON.stringify(now_lecture),
+                                video_url: video_url
+                            }
+                        })
+                    }
+                    else {
+                        const live_url = res.data.result.live_url;
+                        
+                        window.open(live_url, "_blank");
+                    }
                 })
+        },
+        lecture_buy: async function (now_lecture) {
+            alert("구매 완료되었습니다. 강의 수강 페이지로 이동합니다.");
+
+            const token = 'Bearer ' + localStorage.getItem('token')
+            await axios.get(
+                'https://api-government.didisam.com/api/lecture/' + now_lecture.lecture_no,
+                {
+                    headers: {
+                        Authorization: token
+                    }
+                }).then((res) => {
+                    if (now_lecture.lecture_type == 'vod') {
+                        const video_url = res.data.result.video_url;
+
+                        this.$router.push({
+                            path: '/video',
+                            query: {
+                                // router query push할 때, JSON 데이터를 유지하려면 stringfy와 parse 과정이 필요하다.
+                                lecture: JSON.stringify(now_lecture),
+                                video_url: video_url
+                            }
+                        })
+                    }
+                    else {
+                        const live_url = res.data.result.live_url;
+                        
+                        window.open(live_url, "_blank");
+                    }
+                })
+
+            // 맞춤 추천 강의 목록 변경
+            this.custom_lecture_change()
         }
     },
 }

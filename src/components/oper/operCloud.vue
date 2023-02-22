@@ -38,11 +38,12 @@
 
         <!-- 영상 업로드 -->
         <div class="operCloud-button-container">
-            <button class="operCloud-button">
+            <!-- <button class="operCloud-button">
                 + 영상 업로드
-            </button>
+            </button> -->
 
-            <button class="operCloud-button">
+            <button class="operCloud-button"
+            @click="edit_video">
                 아카이브 영상 편집
             </button>
         </div>
@@ -63,12 +64,22 @@
                 class="operCloud-table-row align-middle">
                     <td style="vertical-align: middle;">
                         <div class="radio red">
-                            <input type="radio" name="group1" :id="'radio' + i.video_no" />
+                            <input v-model="selectedRadio" 
+                            type="radio" 
+                            name="group1" 
+                            :id="'radio' + i.video_no"
+                            :value="i.video_no" />
                             <label :for="'radio' + i.video_no">{{ i.title }}</label>
                         </div>
                     </td>
                     <td style="padding: 0px; text-align: center;">
                         {{ i.size }}
+                    </td>
+                    <td class="play-button-style p-0"
+                    @click="play_video(i)">
+                        <img :src="require('@/img/playButton.svg')"
+                        width="50"
+                        />
                     </td>
                 </tr>
             </table>
@@ -98,6 +109,7 @@ export default {
     data() {
         return {
             archive: null,
+            selectedRadio: null,
         }
     },
     props: {
@@ -114,6 +126,36 @@ export default {
                 this.archive = res.data.result;
             })
     },
+    methods: {
+        edit_video() {
+            const token = 'Bearer ' + localStorage.getItem('token');
+            console.log(this.selectedRadio + "번째 영상 convert");
+
+            axios.get(
+            'https://api-government.didisam.com/api/video/convert/' + this.selectedRadio,
+            {
+                headers: {
+                    Authorization: token
+                }
+            }).then((res) => {
+                console.log(res);
+            }).catch(function (error) {
+                console.log(error);
+            });
+        },
+        play_video(video) {
+            const title = video.title;
+            const video_url = video.url;
+
+            this.$router.push({
+                path: '/archiveVideo',
+                query: {
+                    title: title,
+                    video_url: video_url
+                }
+            })
+        }
+    },  
     components: {
     },
 }
