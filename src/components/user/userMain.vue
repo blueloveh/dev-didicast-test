@@ -13,7 +13,7 @@
             </div>
 
             <!-- 영상 아카이브 (운영자 경우) -->
-            <div v-if="role == 'oper'"
+            <div v-if="role == 'admin'"
             class="col-10" style="display: flex; justify-content: flex-end;">
                 <button class="userMain-video-button p-2" style="background-color: #aaa;"
                     @click="$router.push('/operCloud')">
@@ -21,7 +21,8 @@
                 </button>
             </div>
             <!-- right : user info -->
-            <div class="col-1" style="display: flex; justify-content: flex-end;">
+            <div class="col-1" style="display: flex; justify-content: flex-end;"
+            @click="logout">
                 <!-- user name -->
                 <!-- <span>Miseon</span> -->
                 <!-- user image -->
@@ -45,7 +46,7 @@
                 <!-- 캐러셀 -->
                 <Slide v-for="i in lecture" :key="i" class="userMain-register-carousel-item">
                     <div class="userMain-register-carousel-video">
-                        <img :src="i.thumbnail" crossorigin="anonymous" />
+                        <img :src="i.thumbnail" crossorigin="anonymous" style="width: 100%;"/>
                         <!-- {{ i.thumbnail }} -->
                     </div>
                     <div class="userMain-register-video-info">
@@ -75,10 +76,10 @@
                                             userMain-video-button-buy" @click="lecture_buy(i)">
                                     {{ i.price }} 원 구매하기
                                 </button>
-                                <button v-else-if="i.lecture_type == 'vod' && role == 'oper'" class="userMain-video-button" @click="user_route_video_page(i)">
+                                <button v-else-if="i.lecture_type == 'vod' && role == 'admin'" class="userMain-video-button" @click="user_route_video_page(i)">
                                     확인하기
                                 </button>
-                                <button v-else-if="i.lecture_type == 'live' && role == 'oper'" class="userMain-video-button
+                                <button v-else-if="i.lecture_type == 'live' && role == 'admin'" class="userMain-video-button
                                             userMain-video-button-buy" @click="user_route_video_page(i)">
                                     입장하기
                                 </button>
@@ -106,7 +107,7 @@
             <Carousel :breakpoints="breakpoints" :settings="settings" :wrap-around="true"
                 class="userMain-register-carousel">
                 <!-- 캐러셀 -->
-                <Slide v-for="i in lecture" :key="i" class="userMain-register-carousel-item">
+                <Slide v-for="i in recommend_lecture" :key="i" class="userMain-register-carousel-item">
                     <div class="userMain-register-carousel-video">
                         <img :src="i.thumbnail" />
                         <!-- {{ i.thumbnail }} -->
@@ -162,7 +163,7 @@
             <Carousel :breakpoints="breakpoints" :settings="settings" :wrap-around="true"
                 class="userMain-register-carousel">
                 <!-- 캐러셀 -->
-                <Slide v-for="i in lecture" :key="i" class="userMain-register-carousel-item">
+                <Slide v-for="i in mapping_lecture" :key="i" class="userMain-register-carousel-item"></Slide>
                     <div class="userMain-register-carousel-video">
                         <img :src="i.thumbnail" />
                         <!-- {{ i.thumbnail }} -->
@@ -218,6 +219,10 @@
             <div>
                 대표 : 박기웅 | 사업자 등록번호 : 627-88-00384
             </div>
+            <div style="float: right;">
+                <button style=" background-color: #aaa; border: None; color: white; padding: 10px 20px; color: white;"
+                @click="purchase_delete_all">초기화</button>
+            </div>
             <div>
                 서울 특별시 강남구 강남대로 132길 21 3층
             </div>
@@ -226,9 +231,9 @@
             </div>
         </div>
 
-        <button @click="createMeeting()">
+        <!-- <button @click="createMeeting()">
             meeting
-        </button>
+        </button> -->
     </div>
 </template>
   
@@ -243,6 +248,8 @@ export default {
     data() {
         return {
             lecture: [],
+            recommend_lecture: [],
+            mapping_lecture: [],
             role: null,
             // carousel settings
             settings: {
@@ -274,14 +281,33 @@ export default {
     created: async function () {
         const token = 'Bearer ' + localStorage.getItem('token')
         await axios.get(
-            'https://api-government.didisam.com/api/lecture/',
+            'https://api-government.didisam.com/api/lecture',
         {
             headers: {
                 Authorization: token
             }
         }).then((res) => {
             this.lecture = res.data.result;
-            console.log(this.lecture)
+        })
+
+        await axios.get(
+            'https://api-government.didisam.com/api/lecture/recommend',
+        {
+            headers: {
+                Authorization: token
+            }
+        }).then((res) => {
+            this.recommend_lecture = res.data.result;
+        })
+
+        await axios.get(
+            'https://api-government.didisam.com/api/lecture/mapping',
+        {
+            headers: {
+                Authorization: token
+            }
+        }).then((res) => {
+            this.mapping_lecture = res.data.result;
         })
 
         this.role = localStorage.getItem('role')
@@ -379,8 +405,33 @@ export default {
 
             // 맞춤 추천 강의 목록 변경
             this.custom_lecture_change()
+        },
+        logout: async function (){
+            const token = 'Bearer ' + localStorage.getItem('token')
+            await axios.post(
+                'https://api-government.didisam.com/api/logout',
+            {
+                headers: {
+                    Authorization: token
+                }
+            }).then((res) => {
+                console.log(res);
+                this.$router.push('/')
+            })
+        },
+        purchase_delete_all() {
+            const token = 'Bearer ' + localStorage.getItem('token')
+            axios.delete(
+                'https://api-government.didisam.com/api/lecture',
+            {
+                headers: {
+                    Authorization: token
+                }
+            }).then((res) => {
+                console.log(res);
+            })
         }
-    },
+     },
 }
 </script>
   
