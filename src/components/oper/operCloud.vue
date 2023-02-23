@@ -19,7 +19,7 @@
                 <!-- user name -->
                 <!-- <span>Miseon</span> -->
                 <!-- user image -->
-                <img class="operMain-profile-image" :src="require('@/img/profile.png')" />
+                <img class="operMain-profile-image" :src="require('@/img/profile.png')" @click="logout" />
             </div>
         </div>
 
@@ -130,6 +130,7 @@ export default {
         edit_video() {
             const token = 'Bearer ' + localStorage.getItem('token');
             console.log(this.selectedRadio + "번째 영상 convert");
+            alert(this.selectedRadio + "번째 영상 convert")
 
             axios.get(
             'https://api-government.didisam.com/api/video/convert/' + this.selectedRadio,
@@ -154,7 +155,21 @@ export default {
                     video_url: video_url
                 }
             })
-        }
+        },
+        logout: async function (){
+            const token = 'Bearer ' + localStorage.getItem('token')
+            var config = {
+                method: 'post',
+                maxBodyLength: Infinity,
+                url: 'https://api-government.didisam.com/api/logout',
+                headers: { 
+                    'Authorization': token
+                }
+            }
+            await axios(config).then((res) => {
+                this.$router.push('/')
+            })
+        },
     },  
     components: {
     },

@@ -1,6 +1,15 @@
+body {
+    width: 100%;
+    overflow-x: hidden;
+}
+
 .userVideo-container {
-    width: 99.1vw;
+    width:100vw;
+    /* 가로 스크롤 방지 */
+    margin-left: calc(-50vw + 50%);
     box-sizing: border-box;
+    margin: 0px;
+    padding: 0px;
 }
 
 .userVideo-title {

@@ -1,4 +1,4 @@
-<template>
+<template style="width: 100%;">
     <div class="userVideo-container">
         <div class="userVideo-title">
             {{ title }}

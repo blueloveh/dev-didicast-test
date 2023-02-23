@@ -7,7 +7,7 @@
             class="col-11">
                 <img class="userMain-didicast-image" :src="require('@/img/didicast_logo.png')" />
             </div>
-            <div v-if="role == 'oper'"
+            <div v-if="role == 'admin'"
             class="col-1">
                 <img class="userMain-didicast-image" :src="require('@/img/didicast_logo.png')" />
             </div>
@@ -26,7 +26,7 @@
                 <!-- user name -->
                 <!-- <span>Miseon</span> -->
                 <!-- user image -->
-                <img class="userMain-profile-image" :src="require('@/img/profile.png')" />
+                <img class="userMain-profile-image" :src="require('@/img/profile.png')" style="cursor: pointer;" />
             </div>
         </div>
 
@@ -109,7 +109,7 @@
                 <!-- 캐러셀 -->
                 <Slide v-for="i in recommend_lecture" :key="i" class="userMain-register-carousel-item">
                     <div class="userMain-register-carousel-video">
-                        <img :src="i.thumbnail" />
+                        <img :src="i.thumbnail" crossorigin="anonymous" style="width: 100%;"/>
                         <!-- {{ i.thumbnail }} -->
                     </div>
                     <div class="userMain-register-video-info">
@@ -128,16 +128,23 @@
 
                                     <span v-if="i.lecture_type == 'vod'">동영상</span>
                                 </span>
-                                <button v-if="i.price == 0" @click="user_route_video_page(i)" class="userMain-video-button">
+                                <button v-if="i.price == 0 && role == 'user'" @click="user_route_video_page(i)" class="userMain-video-button">
                                     수강하기
                                 </button>
-                                <button v-else-if="i.paid == true" @click="user_route_video_page(i)"
+                                <button v-else-if="i.paid == true && role == 'user'" @click="user_route_video_page(i)"
                                     class="userMain-video-button">
                                     수강하기
                                 </button>
-                                <button v-else class="userMain-video-button
-                                            userMain-video-button-buy">
+                                <button v-else-if="role == 'user'" class="userMain-video-button
+                                            userMain-video-button-buy" @click="lecture_buy(i)">
                                     {{ i.price }} 원 구매하기
+                                </button>
+                                <button v-else-if="i.lecture_type == 'vod' && role == 'admin'" class="userMain-video-button" @click="user_route_video_page(i)">
+                                    확인하기
+                                </button>
+                                <button v-else-if="i.lecture_type == 'live' && role == 'admin'" class="userMain-video-button
+                                            userMain-video-button-buy" @click="user_route_video_page(i)">
+                                    입장하기
                                 </button>
                             </div>
                         </div>
@@ -165,7 +172,7 @@
                 <!-- 캐러셀 -->
                 <Slide v-for="i in mapping_lecture" :key="i" class="userMain-register-carousel-item">
                     <div class="userMain-register-carousel-video">
-                        <img :src="i.thumbnail" />
+                        <img :src="i.thumbnail" crossorigin="anonymous" style="width: 100%;"/>
                         <!-- {{ i.thumbnail }} -->
                     </div>
                     <div class="userMain-register-video-info">
@@ -184,16 +191,23 @@
 
                                     <span v-if="i.lecture_type == 'vod'">동영상</span>
                                 </span>
-                                <button v-if="i.price == 0" @click="user_route_video_page(i)" class="userMain-video-button">
+                                <button v-if="i.price == 0 && role == 'user'" @click="user_route_video_page(i)" class="userMain-video-button">
                                     수강하기
                                 </button>
-                                <button v-else-if="i.paid == true" @click="user_route_video_page(i)"
+                                <button v-else-if="i.paid == true && role == 'user'" @click="user_route_video_page(i)"
                                     class="userMain-video-button">
                                     수강하기
                                 </button>
-                                <button v-else class="userMain-video-button
-                                            userMain-video-button-buy">
+                                <button v-else-if="role == 'user'" class="userMain-video-button
+                                            userMain-video-button-buy" @click="lecture_buy(i)">
                                     {{ i.price }} 원 구매하기
+                                </button>
+                                <button v-else-if="i.lecture_type == 'vod' && role == 'admin'" class="userMain-video-button" @click="user_route_video_page(i)">
+                                    확인하기
+                                </button>
+                                <button v-else-if="i.lecture_type == 'live' && role == 'admin'" class="userMain-video-button
+                                            userMain-video-button-buy" @click="user_route_video_page(i)">
+                                    입장하기
                                 </button>
                             </div>
                         </div>
@@ -219,7 +233,8 @@
             <div>
                 대표 : 박기웅 | 사업자 등록번호 : 627-88-00384
             </div>
-            <div style="float: right;">
+            <div v-if="role == 'admin'" 
+            style="float: right;">
                 <button style=" background-color: #aaa; border: None; color: white; padding: 10px 20px; color: white;"
                 @click="purchase_delete_all">초기화</button>
             </div>
@@ -312,11 +327,6 @@ export default {
 
         this.role = localStorage.getItem('role')
     },
-    mounted() {
-        for (var i = 0; i < this.lecture.length; i++) {
-            console.log(this.lecture[i])
-        }
-    },
     props: {
     },
     components: {
@@ -402,20 +412,18 @@ export default {
                         window.open(live_url, "_blank");
                     }
                 })
-
-            // 맞춤 추천 강의 목록 변경
-            this.custom_lecture_change()
         },
         logout: async function (){
             const token = 'Bearer ' + localStorage.getItem('token')
-            await axios.post(
-                'https://api-government.didisam.com/api/logout',
-            {
-                headers: {
-                    Authorization: token
+            var config = {
+                method: 'post',
+                maxBodyLength: Infinity,
+                url: 'https://api-government.didisam.com/api/logout',
+                headers: { 
+                    'Authorization': token
                 }
-            }).then((res) => {
-                console.log(res);
+            }
+            await axios(config).then((res) => {
                 this.$router.push('/')
             })
         },
@@ -428,7 +436,7 @@ export default {
                     Authorization: token
                 }
             }).then((res) => {
-                console.log(res);
+                this.$router.go(0);
             })
         }
      },

@@ -26,12 +26,10 @@
         <!-- nav 밑 tap -->
         <hr />
         <div class="operMain-tap-container">
-            <span class="operMain-tap-item"
-            style="color: #4DAED3;">
+            <span class="operMain-tap-item" style="color: #4DAED3;">
                 강의
             </span>
-            <span class="operMain-tap-item"
-            @click="$router.push('/operCloud')">
+            <span class="operMain-tap-item" @click="$router.push('/operCloud')">
                 영상 클라우드
             </span>
         </div>
@@ -51,8 +49,8 @@
                                 강의 만들기
                             </div>
                         </div>
-                        <br/>
-                        <br/>
+                        <br />
+                        <br />
                     </div>
 
                     <!-- 강의 목록 -->
@@ -102,7 +100,7 @@
                 [HQ] 부산광역시 해운대구 센텀중앙로 97, 센텀스카이비즈 A-704
             </div>
         </div>
-</div>
+    </div>
 </template>
   
 <script>
@@ -115,5 +113,7 @@ export default {
 }
 </script>
   
-<style>@import "@/css/operMain.css";</style>
+<style>
+@import "@/css/operMain.css";
+</style>
   

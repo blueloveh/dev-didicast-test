@@ -8,7 +8,7 @@
         controls autoplay></video>
         <div class="userVideo-exit">
             <button class="userVideo-exit-button"
-            @click="$router.go(-1)">
+            @click="$router.push('/userMain')">
                 강의 나가기
             </button>
             <div style="clear: both;"></div>
