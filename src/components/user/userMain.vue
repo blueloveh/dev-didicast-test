@@ -131,7 +131,7 @@
                                 <button v-if="i.price == 0" @click="user_route_video_page(i)" class="userMain-video-button">
                                     수강하기
                                 </button>
-                                <button v-else-if="i.paid = true" @click="user_route_video_page(i)"
+                                <button v-else-if="i.paid == true" @click="user_route_video_page(i)"
                                     class="userMain-video-button">
                                     수강하기
                                 </button>
@@ -163,7 +163,7 @@
             <Carousel :breakpoints="breakpoints" :settings="settings" :wrap-around="true"
                 class="userMain-register-carousel">
                 <!-- 캐러셀 -->
-                <Slide v-for="i in mapping_lecture" :key="i" class="userMain-register-carousel-item"></Slide>
+                <Slide v-for="i in mapping_lecture" :key="i" class="userMain-register-carousel-item">
                     <div class="userMain-register-carousel-video">
                         <img :src="i.thumbnail" />
                         <!-- {{ i.thumbnail }} -->
@@ -187,7 +187,7 @@
                                 <button v-if="i.price == 0" @click="user_route_video_page(i)" class="userMain-video-button">
                                     수강하기
                                 </button>
-                                <button v-else-if="i.paid = true" @click="user_route_video_page(i)"
+                                <button v-else-if="i.paid == true" @click="user_route_video_page(i)"
                                     class="userMain-video-button">
                                     수강하기
                                 </button>
