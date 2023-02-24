@@ -38,6 +38,11 @@
     height: 35px;
 }
 
+.userMain-username {
+    padding: 7px;
+    padding-right: 15px;
+}
+
 .userMain-profile-image {
     height: 35px;
 }
@@ -67,7 +72,15 @@
 .userMain-register-title {
     font-size: 30px;
     font-weight: 700;
-    margin: 50px 0px 20px 25px;
+    margin-bottom: 20px;
+}
+
+.userMain-register-lecture-count {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
 }
 
 .userMain-register-carousel {

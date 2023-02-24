@@ -24,7 +24,7 @@
             <div class="col-1" style="display: flex; justify-content: flex-end;"
             @click="logout">
                 <!-- user name -->
-                <span>{{ username }}</span>
+                <span class="userMain-username">{{ username }}</span>
                 <!-- user image -->
                 <img class="userMain-profile-image" :src="require('@/img/profile.png')" style="cursor: pointer;" />
             </div>
@@ -37,14 +37,19 @@
             </div>
 
             <!-- 등록 강의 -->
-            <div class="userMain-register-title">
-                등록 강의
+            <div class="row mt-3 align-items-center">
+                <div class="col userMain-register-title">
+                    등록 강의
+                </div>
+                <div class="col userMain-register-lecture-count">
+                    강의 개수 : {{ lecture_len }}
+                </div>
             </div>
 
-            <Carousel :breakpoints="breakpoints" :settings="settings" :wrap-around="true"
+            <Carousel :breakpoints="breakpoints" :settings="settings"
                 class="userMain-register-carousel">
                 <!-- 캐러셀 -->
-                <Slide v-for="i in lecture" :key="i" class="userMain-register-carousel-item">
+                <Slide v-for="(i, a) in lecture" :key="i" class="userMain-register-carousel-item">
                     <div class="userMain-register-carousel-video">
                         <img :src="i.thumbnail" crossorigin="anonymous" style="width: 100%;"/>
                         <!-- {{ i.thumbnail }} -->
@@ -57,7 +62,7 @@
                         <!-- 강의 제목 및 수강 버튼 -->
                         <div>
                             <div class="userMain-register-video-info-title">
-                                {{ i.title }}
+                                <b>[{{ a + 1 }}]</b> {{ i.title }}
                             </div>
                             <div class="userMain-video-info-bottom">
                                 <span class="userMain-video-kind">
@@ -98,16 +103,21 @@
                 </template>
             </Carousel>
 
-            <!-- 등록 강의 -->
-            <div class="userMain-register-title">
-                맞춤 추천 강의
+            <!-- 맞춤 추천 강의 -->
+            <div class="row mt-3 align-items-center">
+                <div class="col userMain-register-title">
+                    맞춤 추천 강의
+                </div>
+                <div class="col userMain-register-lecture-count">
+                    강의 개수 : {{ recommend_lecture_len }}
+                </div>
             </div>
 
             <!-- 맞춤 추천 강의 -->
-            <Carousel :breakpoints="breakpoints" :settings="settings" :wrap-around="true"
+            <Carousel :breakpoints="breakpoints" :settings="settings"
                 class="userMain-register-carousel">
                 <!-- 캐러셀 -->
-                <Slide v-for="i in recommend_lecture" :key="i" class="userMain-register-carousel-item">
+                <Slide v-for="(i, a) in recommend_lecture" :key="i" class="userMain-register-carousel-item">
                     <div class="userMain-register-carousel-video">
                         <img :src="i.thumbnail" crossorigin="anonymous" style="width: 100%;"/>
                         <!-- {{ i.thumbnail }} -->
@@ -120,7 +130,7 @@
                         <!-- 강의 제목 및 수강 버튼 -->
                         <div>
                             <div class="userMain-register-video-info-title">
-                                {{ i.title }}
+                                <b>[{{ a + 1 }}]</b> {{ i.title }}
                             </div>
                             <div class="userMain-video-info-bottom">
                                 <span class="userMain-video-kind">
@@ -161,16 +171,21 @@
                 </template>
             </Carousel>
 
-            <!-- 등록 강의 -->
-            <div class="userMain-register-title">
-                수강 기간 매핑 강의
+            <!-- 수강 기간 매핑 강의 -->
+            <div class="row mt-3 align-items-center">
+                <div class="col userMain-register-title">
+                    수강 기간 매핑 강의
+                </div>
+                <div class="col userMain-register-lecture-count">
+                    강의 개수 : {{ mapping_lecture_len }}
+                </div>
             </div>
 
             <!-- 수강 기간 매핑 강의 -->
-            <Carousel :breakpoints="breakpoints" :settings="settings" :wrap-around="true"
+            <Carousel :breakpoints="breakpoints" :settings="settings" 
                 class="userMain-register-carousel">
                 <!-- 캐러셀 -->
-                <Slide v-for="i in mapping_lecture" :key="i" class="userMain-register-carousel-item">
+                <Slide v-for="(i, a) in mapping_lecture" :key="i" class="userMain-register-carousel-item">
                     <div class="userMain-register-carousel-video">
                         <img :src="i.thumbnail" crossorigin="anonymous" style="width: 100%;"/>
                         <!-- {{ i.thumbnail }} -->
@@ -183,7 +198,7 @@
                         <!-- 강의 제목 및 수강 버튼 -->
                         <div>
                             <div class="userMain-register-video-info-title">
-                                {{ i.title }}
+                                <b>[{{ a + 1 }}]</b> {{ i.title }}
                             </div>
                             <div class="userMain-video-info-bottom">
                                 <span class="userMain-video-kind">
@@ -265,6 +280,9 @@ export default {
             lecture: [],
             recommend_lecture: [],
             mapping_lecture: [],
+            lecture_len: 0,
+            recommend_lecture_len: 0,
+            mapping_lecture_len: 0,
             role: null,
             username: '',
             // carousel settings
@@ -304,6 +322,7 @@ export default {
             }
         }).then((res) => {
             this.lecture = res.data.result;
+            this.lecture_len = this.lecture.length;
         })
 
         await axios.get(
@@ -314,6 +333,7 @@ export default {
             }
         }).then((res) => {
             this.recommend_lecture = res.data.result;
+            this.recommend_lecture_len = this.recommend_lecture.length;
         })
 
         await axios.get(
@@ -324,6 +344,7 @@ export default {
             }
         }).then((res) => {
             this.mapping_lecture = res.data.result;
+            this.mapping_lecture_len = this.mapping_lecture.length;
         })
         this.username = localStorage.getItem('username')
         this.role = localStorage.getItem('role')
