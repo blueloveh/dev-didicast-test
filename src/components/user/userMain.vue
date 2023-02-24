@@ -377,8 +377,13 @@ export default {
                         })
                     }
                     else {
+
+                        const url = 'runDIDICAM://';
+                        const exec = document.createElement('a');
+                        exec.setAttribute('href', url);
+                        exec.click();
+
                         const live_url = res.data.result.live_url;
-                        
                         window.open(live_url, "_blank");
                     }
                 })
