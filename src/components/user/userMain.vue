@@ -24,7 +24,7 @@
             <div class="col-1" style="display: flex; justify-content: flex-end;"
             @click="logout">
                 <!-- user name -->
-                <!-- <span>Miseon</span> -->
+                <span>{{ username }}</span>
                 <!-- user image -->
                 <img class="userMain-profile-image" :src="require('@/img/profile.png')" style="cursor: pointer;" />
             </div>
@@ -266,6 +266,7 @@ export default {
             recommend_lecture: [],
             mapping_lecture: [],
             role: null,
+            username: '',
             // carousel settings
             settings: {
                 itemsToShow: 1,
@@ -324,7 +325,7 @@ export default {
         }).then((res) => {
             this.mapping_lecture = res.data.result;
         })
-
+        this.username = localStorage.getItem('username')
         this.role = localStorage.getItem('role')
     },
     props: {

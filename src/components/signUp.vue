@@ -52,6 +52,7 @@ export default {
       ).then((res) => {
         // token을 로컬스토리지에 저장
         localStorage.setItem('token', res.data.authorisation.token);
+        localStorage.setItem('username', res.data.user.username);
         console.log(res.data)
 
         if(res.data.user.role == "user"){
