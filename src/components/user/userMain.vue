@@ -4,7 +4,7 @@
         <div class="row justify-content-end p-3 m-0">
             <!-- left : didicast image -->
             <div v-if="role == 'user'"
-            class="col-11">
+            class="col-10">
                 <img class="userMain-didicast-image" :src="require('@/img/didicast_logo.png')" />
             </div>
             <div v-if="role == 'admin'"
@@ -14,17 +14,19 @@
 
             <!-- 영상 아카이브 (운영자 경우) -->
             <div v-if="role == 'admin'"
-            class="col-10" style="display: flex; justify-content: flex-end;">
+            class="col" style="display: flex; justify-content: flex-end;">
                 <button class="userMain-video-button p-2" style="background-color: #aaa;"
                     @click="$router.push('/operCloud')">
                     영상 아카이브
                 </button>
             </div>
             <!-- right : user info -->
-            <div class="col-1" style="display: flex; justify-content: flex-end;"
+            <div class="col-2" style="display: flex; justify-content: flex-end;"
             @click="logout">
                 <!-- user name -->
-                <span class="userMain-username">{{ username }}</span>
+                <span class="userMain-username">
+                    user name : <b>{{ username }}</b>
+                </span>
                 <!-- user image -->
                 <img class="userMain-profile-image" :src="require('@/img/profile.png')" style="cursor: pointer;" />
             </div>
