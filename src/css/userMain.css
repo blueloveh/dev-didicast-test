@@ -65,6 +65,12 @@
     padding-bottom: 50px;
 }
 
+.userMain-class-container section {
+    display: flex;
+    justify-content: flex-start;
+    align-items: start;
+}
+
 .userMain-santa-image {
     height: 80px;
 }

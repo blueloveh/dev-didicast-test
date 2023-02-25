@@ -288,18 +288,18 @@ export default {
             // carousel settings
             settings: {
                 itemsToShow: 1,
-                snapAlign: 'center',
+                snapAlign: 'start',
             },
             // breakpoints are mobile first
             // any settings not specified will fallback to the carousel settings
             breakpoints: {
                 500: {
                     itemsToShow: 1,
-                    snapAlign: 'center',
+                    snapAlign: 'start',
                 },
                 900: {
                     itemsToShow: 3,
-                    snapAlign: 'center',
+                    snapAlign: 'start',
                 },
                 1400: {
                     itemsToShow: 4,
