@@ -1,6 +1,6 @@
 import { createWebHistory, createRouter } from "vue-router";
 import signUp from '@/components/signUp.vue';
-import test from '@/components/test.vue';
+import meeting from '@/components/meeting.vue';
 import userMain from '@/components/user/userMain.vue';
 import userVideo from '@/components/user/userVideo.vue';
 import operMain from '@/components/oper/operMain.vue';
@@ -30,8 +30,8 @@ const routes = [
         component: operCreate,
     },
     {
-        path: "/test",
-        component: test,
+        path: "/meeting",
+        component: meeting,
     },
     {
         path: "/video",

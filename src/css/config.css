@@ -1,0 +1,66 @@
+.config-container {
+    background-color: #424242;
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    top: 50%;
+}
+
+.config-title {
+    font-size: 32px;
+    color: white;
+    font-weight: 600;
+    padding: 20px 40px;
+}
+
+.config-video {
+    display: flex;
+    width: 100%;
+}
+
+.config-video > video {
+    width: 100%;
+    justify-content: center;
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding: 20px 40px;
+}
+
+.config-select-section {
+    padding-bottom: 30px;
+    padding-right: 40px;
+    color: #d9d9d9;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.config-dropdown {
+    color: black;
+    width: 100% !important;
+}
+
+.config-dropdown:hover {
+    color: black;
+    width: 100% !important;
+}
+
+.config-button {
+    background-color: #4DAED3;
+    border: None;
+    border-radius: 10px;
+    padding: 15px 50px;
+    color: white;
+    font-size: 20px;
+    font-weight: 500;
+
+    float: right;
+    margin-top: 20px;
+}
+
+.test-container {
+    width: 100vw;
+}
+
+.meeting-container {
+    width: 100vw;
+}
