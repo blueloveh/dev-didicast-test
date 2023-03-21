@@ -110,14 +110,20 @@
 
   <div class="meeting-container" v-if="configureState == false">
     <div class="container-fluid">
-      <div>
-        <p>Your Video (본인)</p>
-        <video id="local-video"></video>
+      <div class="meeting-nav">
+        meeting title
       </div>
       
       <div>
-        <p>Remote Video (상대방)</p>
-        <video id="main-video"></video>
+        <video id="main-video" class="main-video">
+          <!-- <p>Remote Video (상대방)</p> -->
+        </video>
+      </div>
+      
+      <div>
+        <video id="local-video" class="local-video">
+          <!-- <p>Your Video (본인)</p> -->
+        </video>
       </div>
 
       <audio id="meeting-audio" style="display: none;" />

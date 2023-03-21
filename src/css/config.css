@@ -62,5 +62,29 @@
 }
 
 .meeting-container {
+    width: 100%;
+}
+
+.meeting-nav {
     width: 100vw;
+    background-color: #2C2C30;
+    text-align: left;
+    font-weight: 700;
+    font-size: 20px;
+    color: white;
+    padding: 30px 50px;
+}
+
+.main-video {
+    width: 320px;
+    height: 240px;
+    position: absolute;
+    right: 30px;
+    z-index: 9999;
+}
+
+.local-video {
+    width: 100%;
+    object-fit: cover;
+    box-sizing: border-box;
 }
