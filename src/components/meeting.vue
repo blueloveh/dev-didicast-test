@@ -1,26 +1,33 @@
 <template>
-  <div class="config-container" v-if="configureState == true">
+  <div class="config-container d-flex align-items-center" 
+  v-if="configureState == true">
     <div class="container-fluid">
+      <!-- 미리보기 타이틀 -->
       <div class="row config-title">
         Preview
       </div>
+
+      <!-- 미리보기 및 장치 설정 -->
       <div class="row">
-        <div class="col" style="padding: 0px;">
+        <!-- 미리보기 설정 -->
+        <div class="col p-4">
           <!-- video 미리보기 -->
           <div class="config-video">
             <video id="preview-video"></video>
           </div>
 
           <!-- mute -->
-          <div>
-
+          <div class="config-img-container">
+            <img class="config-img-camera" :src="require('@/img/camera.svg')" />
+            <img class="config-img-mic" :src="require('@/img/mic.svg')" />
           </div>
         </div>
 
+        <!-- 장치 설정 -->
         <div class="col" style="padding: 0px;">
           <!-- select camera device -->
           <div class="config-select-section">
-            <div class="mb-3">카메라</div>
+            <div class="mb-3 mt-3">카메라</div>
 
             <div class="dropdown config-dropdown">
               <button class="btn bg-white dropdown-toggle config-dropdown p-3" type="button" id="dropdownMenuButton1"
@@ -109,25 +116,45 @@
   </div>
 
   <div class="meeting-container" v-if="configureState == false">
-    <div class="container-fluid">
-      <div class="meeting-nav">
-        meeting title
-      </div>
-      
-      <div>
-        <video id="main-video" class="main-video">
-          <!-- <p>Remote Video (상대방)</p> -->
-        </video>
-      </div>
-      
-      <div>
+    <!-- 10% -->
+    <div class="meeting-nav">
+      meeting title
+    </div>
+
+    <div>
+      {{ attendeeCount }}
+    </div>
+
+    <!-- 80% -->
+    <div class="video-container">
+      <!-- 강사 -->
+      <!-- 임시 : 본인 -->
+      <div class="lecture-video-container">
         <video id="local-video" class="local-video">
-          <!-- <p>Your Video (본인)</p> -->
         </video>
       </div>
 
-      <audio id="meeting-audio" style="display: none;" />
+      <!-- 수강생 -->
+      <!-- 임시 : 상대방들 -->
+      <div class="student-video-container"
+          v-if="attendeeCount > 1">
+          <video class="main-video"
+          :id="'main-video-' + i" 
+          v-for="i in (attendeeCount - 1)" :key="i">
+          </video>
+      </div>
+
     </div>
+
+    <!-- 10% -->
+    <div class="video-footer">
+      <img class="video-footer-img" :src="require('@/img/camera.svg')" />
+      <img class="video-footer-img" :src="require('@/img/mic.svg')" />
+      <img class="video-footer-img" :src="require('@/img/record.svg')" />
+    </div>
+
+    <audio id="meeting-audio" style="display: none;" />
+
   </div>
 
   <div class="test-container">
@@ -191,7 +218,9 @@ export default {
       searchMeetingId: '',
       meetingSession: null,
 
-      previewVideo: null,
+      previewVideo: null, // 회의 참석 전, 비디오 미리보기 html 요소
+      attendeeArr: [], // 참석자 html 요소 배열 (local 제외)
+      attendeeCount: null, // 현재 참석자 수
 
       selectedDevice: {
         videoInput: {
@@ -228,7 +257,8 @@ export default {
       this.previewVideo = document.getElementById('preview-video');
 
       // *** Chime Setting ***
-      var logger = new ConsoleLogger("ChimeMeetingLogs", LogLevel.INFO); // console에 chime log를 띄움
+      // var logger = new ConsoleLogger("ChimeMeetingLogs", LogLevel.INFO); // console에 chime log를 띄움
+      var logger = new ConsoleLogger();
       this.deviceController = new DefaultDeviceController(logger);
       var configuration = new MeetingSessionConfiguration(this.obj.meetingObj, this.obj.attendeeObj);
 
@@ -305,7 +335,6 @@ export default {
 
       // *** 바인딩할 html 객체 불러오기 ***
       const audio = document.getElementById('meeting-audio');
-      const mainVideo = document.getElementById('main-video');
       const localVideo = document.getElementById('local-video');
 
       // *** Video Setting ***
@@ -313,14 +342,28 @@ export default {
       const videoObserver = {
         // 동영상 타일이 생성되거나 업데이트될 때마다 호출됨
         videoTileDidUpdate: (tileState) => {
+          this.attendeeArr = [];
           console.log("%cVideoTileDidUpdate()", "color: green", tileState);
+          
+          this.attendeeCount = tileState.tileId;
+          for(var i = 1; i <= this.attendeeCount - 1; i++) {
+            var mainVideo = document.getElementById('main-video-' + i);
+            console.log(mainVideo)
+            this.attendeeArr.push(mainVideo);
+          }
+
           // Ignore a tile without attendee ID and other attendee's tile.
           if (!tileState.boundAttendeeId && !tileState.localTile) {
             console.log("No Attendee Id");
             return;
           }
+
+          console.log(this.attendeeArr);
+
           // Checking whether to render as local preview or main video
-          let videoObj = tileState.localTile ? localVideo : mainVideo;
+          let videoObj = tileState.localTile ? localVideo : this.attendeeArr[tileState.tileId - 2];
+          console.log("tileState.tileId : " + tileState.tileId);
+          console.log(videoObj);
           this.meetingSession.audioVideo.bindVideoElement(tileState.tileId, videoObj);
           videoObj.tileId = tileState.active ? tileState.tileId : null;
         },
@@ -355,7 +398,7 @@ export default {
 
       // audio 요소를 html에 바인딩
       await this.meetingSession.audioVideo.bindAudioElement(audio);
-      
+
       // 비디오 미리보기 종료
       await this.meetingSession.audioVideo.stopVideoPreviewForVideoInput(this.previewVideo);
 

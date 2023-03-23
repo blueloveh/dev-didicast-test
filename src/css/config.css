@@ -10,20 +10,26 @@
     font-size: 32px;
     color: white;
     font-weight: 600;
-    padding: 20px 40px;
+    padding: 20px 50px;
 }
 
 .config-video {
     display: flex;
-    width: 100%;
+    width: 95%;
+    height: 85%;
+    margin: 0 auto;
+    background-color: #2C2C30;
+    border-radius: 20px;
 }
 
 .config-video > video {
     width: 100%;
     justify-content: center;
+    object-fit: cover;
+    align-items: center;
     margin: 0 auto;
     box-sizing: border-box;
-    padding: 20px 40px;
+    border-radius: 20px;
 }
 
 .config-select-section {
@@ -32,6 +38,25 @@
     color: #d9d9d9;
     font-size: 24px;
     font-weight: 600;
+}
+
+.config-img-container {
+    display: flex;
+    margin: 30px;
+}
+
+.config-img-camera {
+    width: 70px;
+}
+
+.config-img-mic {
+    width: 70px;
+    margin-left: 20px;
+}
+
+.config-img-camera:hover, .config-img-mic:hover {
+    filter: brightness(70%);
+    cursor: pointer;
 }
 
 .config-dropdown {
@@ -63,6 +88,10 @@
 
 .meeting-container {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
 }
 
 .meeting-nav {
@@ -73,18 +102,74 @@
     font-size: 20px;
     color: white;
     padding: 30px 50px;
+    height: 10%;
+}
+
+.video-container {
+    width: 100%;
+    height: 80%;
+    background: #181b1f;
+    display: flex;
+    flex-direction: row;
+}
+
+.lecture-video-container {
+    width: 50%;
+    height: 100%;
+    background: #181b1f;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.student-video-container { 
+    width: 50%;
+    height: 100%;
+    background: #181b1f;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .main-video {
-    width: 320px;
-    height: 240px;
-    position: absolute;
-    right: 30px;
-    z-index: 9999;
+    width: 25%;
+    /* height: 12em; */
+    flex: 1 1 calc(40% - 2px);
+    margin: 2px;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
 }
 
 .local-video {
-    width: 100%;
-    object-fit: cover;
-    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-footer {
+    width: 100vw;
+    background-color: #2C2C30;
+    text-align: left;
+    font-weight: 700;
+    font-size: 20px;
+    color: white;
+    height: 10%;
+
+    display: flex;
+    align-items: center;
+}
+
+.video-footer-img {
+    width: 60px;
+    margin-left: 30px;
+}
+
+.video-footer-img:hover {
+    width: 60px;
+    margin-left: 30px;
+
+    filter: brightness(70%);
+    cursor: pointer;
 }
