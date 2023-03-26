@@ -1,6 +1,5 @@
 <template>
-  <div class="config-container d-flex align-items-center" 
-  v-if="configureState == true">
+  <div class="config-container d-flex align-items-center" v-if="configureState == true">
     <div class="container-fluid">
       <!-- 미리보기 타이틀 -->
       <div class="row config-title">
@@ -118,39 +117,45 @@
   <div class="meeting-container" v-if="configureState == false">
     <!-- 10% -->
     <div class="meeting-nav">
-      meeting title
-    </div>
-
-    <div>
-      {{ attendeeCount }}
+      meeting title (참가자 수 : {{ attendeeCount }})
     </div>
 
     <!-- 80% -->
     <div class="video-container">
       <!-- 강사 -->
       <!-- 임시 : 본인 -->
-      <div class="lecture-video-container">
+      <div :class="{
+        'lecture-video-container-alone': attendeeCount == 1,
+        'lecture-video-container': attendeeCount > 1
+      }">
         <video id="local-video" class="local-video">
         </video>
       </div>
 
       <!-- 수강생 -->
       <!-- 임시 : 상대방들 -->
-      <div class="student-video-container"
-          v-if="attendeeCount > 1">
-          <video class="main-video"
-          :id="'main-video-' + i" 
-          v-for="i in (attendeeCount - 1)" :key="i">
-          </video>
+      <div class="student-video-container" v-if="attendeeCount > 1">
+        <video class="main-video" :id="'main-video-' + (i + 1)" v-for="i in (attendeeCount - 1)" :key="i">
+        </video>
       </div>
 
     </div>
 
     <!-- 10% -->
     <div class="video-footer">
-      <img class="video-footer-img" :src="require('@/img/camera.svg')" />
-      <img class="video-footer-img" :src="require('@/img/mic.svg')" />
-      <img class="video-footer-img" :src="require('@/img/record.svg')" />
+      <img v-if="!deviceMute.camera" @click="toggleStopVideo" class="video-footer-img"
+        :src="require('@/img/camera.svg')" />
+      <img v-if="deviceMute.camera" @click="toggleStopVideo" class="video-footer-img"
+        :src="require('@/img/camera_mute.svg')" />
+
+      <img v-if="deviceMute.mic" @click="toggleMuteAudio" class="video-footer-img" :src="require('@/img/mic_mute.svg')" />
+      <img v-if="!deviceMute.mic" @click="toggleMuteAudio" class="video-footer-img" :src="require('@/img/mic.svg')" />
+
+      <img class="video-footer-img" v-if="!record"
+      @click="recordMeeting(callbackRecordMeeting)" :src="require('@/img/record.svg')" />
+
+      <img class="video-footer-img" v-if="record"
+      @click="windows.stopCallback(); record = false; " :src="require('@/img/record_stop.svg')" />
     </div>
 
     <audio id="meeting-audio" style="display: none;" />
@@ -160,6 +165,13 @@
   <div class="test-container">
     <div class="container-fluid">
       <div>
+        <form>
+          <input v-model="externalMeetingId" type="text" placeholder="생성할 회의의 이름을 입력하세요." />
+        </form>
+        <form>
+          <input v-model="externalUserId" type="text" placeholder="회의에 참여할 ID를 입력하세요. " />
+        </form>
+        {{ externalUserId }}
         <button @click="createMeeting">create meeting</button>
         <p> : 새로운 회의를 생성합니다. </p>
       </div>
@@ -175,7 +187,11 @@
 
       <div>
         <form>
-          <input v-model="searchMeetingId" type="text" placeholder="enter meeting id" />
+          <input v-model="searchMeetingId" type="text" placeholder="참여할 회의의 ID를 입력하세요. " />
+        </form>
+
+        <form>
+          <input v-model="externalUserId" type="text" placeholder="회의에 참여할 ID를 입력하세요. " />
         </form>
 
         <span>
@@ -205,6 +221,8 @@ import {
   MeetingSessionConfiguration
 } from 'amazon-chime-sdk-js';
 
+import RecordRTC from "recordrtc";
+
 export default {
   name: 'meeting',
   data() {
@@ -215,11 +233,35 @@ export default {
       audioInputDevices: null,
       audioOutputDevices: null,
       videoInputDevices: null,
-      searchMeetingId: '',
-      meetingSession: null,
+
+      searchMeetingId: '', // 참가할 회의 ID
+      externalMeetingId: '', // 생성할 외부 회의 ID
+      externalUserId: '', // 생성할 외부 유저 ID
+      meetingSession: null, // 회의 세션
 
       previewVideo: null, // 회의 참석 전, 비디오 미리보기 html 요소
       attendeeArr: [], // 참석자 html 요소 배열 (local 제외)
+
+      updateVideoDone: true, // 참석자 video를 모두 update 했는가?
+
+      // 장치 활성화 여부
+      deviceMute: {
+        camera: false,
+        mic: false,
+      },
+
+      // 녹화 여부
+      record: false,
+
+      /*
+      attendeeTile = [
+        {
+          tileState: tileState,
+          externalUserId: externalUserId, 
+        }
+      ]
+      */
+      attendeeTile: [], // 참석자 video tile 배열 (DOM 생성 전에 구성됨)
       attendeeCount: null, // 현재 참석자 수
 
       selectedDevice: {
@@ -243,7 +285,9 @@ export default {
     async createMeeting() {
       await axios.post('/api/chime/meetingSession',
         {
-          state: false
+          state: false,
+          externalMeetingId: this.externalMeetingId,
+          externalUserId: this.externalUserId,
         })
         .then((res) => {
           console.log(res.data);
@@ -327,9 +371,11 @@ export default {
       // video 미리보기
       await this.meetingSession.audioVideo.startVideoPreviewForVideoInput(this.previewVideo);
     },
+    // 프리뷰 화면 <-> 회의 진행 화면
     async toggleConfigureState() {
       this.configureState = !this.configureState;
     },
+    // 회의 세션 시작
     async meetingSessionStart() {
       await this.toggleConfigureState();
 
@@ -337,43 +383,56 @@ export default {
       const audio = document.getElementById('meeting-audio');
       const localVideo = document.getElementById('local-video');
 
+      // Subscribe to Attendees Joining/Leaving the meeting
+      const attendeesCallback = (presentAttendeeId, present) => {
+        console.log(`Attendee ID: ${presentAttendeeId} Present: ${present}`);
+        // TODO handling for attendees joining/leaving
+        if (present) { // An attendee joins the call
+          this.attendeeCount = this.attendeeCount + 1;
+          console.log('this.attendeeCount : ' + this.attendeeCount);
+        } else { // An attendee leaves the call
+          this.attendeeCount = this.attendeeCount - 1;
+          console.log('this.attendeeCount : ' + this.attendeeCount);
+        }
+      };
+      this.meetingSession.audioVideo.realtimeSubscribeToAttendeeIdPresence(attendeesCallback);
+
       // *** Video Setting ***
       // video observer
       const videoObserver = {
         // 동영상 타일이 생성되거나 업데이트될 때마다 호출됨
-        videoTileDidUpdate: (tileState) => {
-          this.attendeeArr = [];
-          console.log("%cVideoTileDidUpdate()", "color: green", tileState);
-          
-          this.attendeeCount = tileState.tileId;
-          for(var i = 1; i <= this.attendeeCount - 1; i++) {
-            var mainVideo = document.getElementById('main-video-' + i);
-            console.log(mainVideo)
-            this.attendeeArr.push(mainVideo);
-          }
+        videoTileDidUpdate: async (tileState) => {
+          // console.log("%cVideoTileDidUpdate()", "color: green", tileState);
+          console.log("%cVideoTileDidUpdate()", "color: green");
 
           // Ignore a tile without attendee ID and other attendee's tile.
           if (!tileState.boundAttendeeId && !tileState.localTile) {
-            console.log("No Attendee Id");
             return;
           }
 
-          console.log(this.attendeeArr);
-
           // Checking whether to render as local preview or main video
-          let videoObj = tileState.localTile ? localVideo : this.attendeeArr[tileState.tileId - 2];
-          console.log("tileState.tileId : " + tileState.tileId);
-          console.log(videoObj);
-          this.meetingSession.audioVideo.bindVideoElement(tileState.tileId, videoObj);
-          videoObj.tileId = tileState.active ? tileState.tileId : null;
+          let videoObj = tileState.localTile ? localVideo : null;
+          if (videoObj) {
+            await this.meetingSession.audioVideo.bindVideoElement(tileState.tileId, videoObj);
+            videoObj.tileId = tileState.active ? tileState.tileId : null;
+          }
+          else {
+            console.log(tileState.tileId + " : ", tileState.boundExternalUserId);
+            this.attendeeTile[tileState.tileId] = {
+              tileState: tileState,
+              externalUserId: tileState.boundExternalUserId
+            };
+          }
         },
         // 동영상 타일이 제거될 때 호출됨
         videoTileWasRemoved: (tileId) => {
           // 이렇게 하면, 미팅에 대한 연결이 끊기는 비디오에 대해 더 정확한 콜백이 제공됨으로 보임
           console.log(`%cvideoTileWasRemoved. [tileId=${tileId}]`, "color: orange");
           // 해당 비디오 'isActive' 플래그를 false로 설정
-          const videoObj = tileId === mainVideo.tileId ? mainVideo : localVideo;
-          videoObj.isActive = false;
+          // const videoObj = tileId === mainVideo.tileId ? mainVideo : localVideo;
+          // videoObj.isActive = false;
+
+          this.meetingSession.audioVideo.removeVideoTile(tileId);
         },
       };
 
@@ -411,7 +470,8 @@ export default {
       await axios.post('/api/chime/meetingSession',
         {
           state: true,
-          meetingId: this.searchMeetingId
+          meetingId: this.searchMeetingId,
+          externalUserId: this.externalUserId,
         })
         .then((res) => {
           console.log(res.data);
@@ -419,7 +479,6 @@ export default {
         });
 
       await this.setMeetingSession();
-      await this.meetingSessionStart();
     },
     // 회의 제거
     async deleteMeeting() {
@@ -432,7 +491,155 @@ export default {
         .then((res) => {
           console.log('delete meeting ended');
         })
+    },
+    async updateVideo() {
+      if (this.attendeeCount > 1) {
+        console.log("updated attendeeCount : " + this.attendeeCount);
+
+        for (var i = 2; i <= this.attendeeCount; i++) {
+          // video tile 객체 존재 O
+          if (this.attendeeTile[i]) {
+            // video tile bound가 이미 되어있음
+            if (this.attendeeTile[i].tileState.boundVideoElement) {
+              console.log("already bound");
+              continue;
+            }
+            // video tile bound 수행
+            else {
+              var tmp_element = document.getElementById('main-video-' + i);
+              await this.meetingSession.audioVideo.bindVideoElement(this.attendeeTile[i].tileState.tileId, tmp_element);
+              console.log('bound video id : ' + this.attendeeTile[i].tileState.tileId);
+
+              this.updateVideoDone = true;
+            }
+          }
+          // video tile 객체 존재 X -> update false
+          else {
+            console.log("failed bound video " + i);
+            this.updateVideoDone = false;
+          }
+        }
+      }
+    },
+    async toggleMuteAudio() {
+      // mute X -> mute O
+      if (!this.deviceMute.mic) {
+        await this.meetingSession.audioVideo.realtimeMuteLocalAudio();
+        console.log("Local audio muted");
+      }
+      // mute O -> mute X
+      else {
+        await this.meetingSession.audioVideo.realtimeUnmuteLocalAudio();
+        console.log("Local audio unmuted");
+      }
+
+      this.deviceMute.mic = !this.deviceMute.mic;
+    },
+    async toggleStopVideo() {
+      // stop video
+      if (!this.deviceMute.camera) {
+        await this.meetingSession.audioVideo.stopLocalVideoTile();
+        await this.meetingSession.audioVideo.removeLocalVideoTile();
+        this.deviceMute.camera = !this.deviceMute.camera;
+      }
+      // start video
+      else {
+        await this.meetingSession.audioVideo.startLocalVideoTile();
+        this.deviceMute.camera = !this.deviceMute.camera;
+      }
+    },
+    async recordMeeting(callback) {
+      this.record = true;
+      const video = document.querySelector('video');
+      const { createFFmpeg, fetchFile } = FFmpeg;
+      const ffmpeg = createFFmpeg({
+        log: true,
+        progress: showProgress
+      });
+
+      this.invokeGetDisplayMedia(function (target) {
+        this.addStreamStopListener(target, function () {
+          if (this.stopCallback) {
+            this.stopCallback();
+          }
+
+        });
+        callback(target);
+      }, function (error) {
+        console.error(error);
+        alert('Unable to capture your screen. Please check console logs.\n' + error);
+      });
+    },
+    async callbackRecordMeeting(target) {
+      var recorder = RecordRTC(target, {
+        type: 'video',
+        mimeType: 'video/webm'
+      });
+
+      recorder.startRecording();
+
+      this.stopCallback = function () {
+        this.stopCallback = null;
+
+        recorder.stopRecording(function () {
+          var blob = recorder.getBlob();
+          var fileUrl = URL.createObjectURL(blob);
+
+          target.stop();
+          recorder.save("screen_recording.webm");
+          recorder.destroy();
+          recorder = null;
+        });
+      };
+    },
+    async invokeGetDisplayMedia(success, error) {
+      var displaymediastreamconstraints = {
+        video: {
+          displaySurface: 'monitor', // monitor, window, application, browser
+          logicalSurface: true,
+          cursor: 'always' // never, always, motion
+        }
+      };
+
+      // above constraints are NOT supported YET
+      // that's why overridnig them
+      displaymediastreamconstraints = {
+        video: true
+      };
+
+      if (navigator.mediaDevices.getDisplayMedia) {
+        navigator.mediaDevices.getDisplayMedia(displaymediastreamconstraints).then(success).catch(error);
+      }
+      else {
+        navigator.getDisplayMedia(displaymediastreamconstraints).then(success).catch(error);
+      }
+    },
+    async addStreamStopListener(stream, callback) {
+      stream.addEventListener('ended', function () {
+        callback();
+        callback = function () { };
+      }, false);
+      stream.addEventListener('inactive', function () {
+        callback();
+        callback = function () { };
+      }, false);
+      stream.getTracks().forEach(function (track) {
+        track.addEventListener('ended', function () {
+          callback();
+          callback = function () { };
+        }, false);
+        track.addEventListener('inactive', function () {
+          callback();
+          callback = function () { };
+        }, false);
+      });
     }
+  },
+  created() {
+    this.attendeeTile = new Array(100);
+  },
+  async updated() {
+    await this.updateVideo();
   },
   props: {
   }
