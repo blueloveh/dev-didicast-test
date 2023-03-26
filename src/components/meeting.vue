@@ -155,7 +155,7 @@
       @click="recordMeeting(callbackRecordMeeting)" :src="require('@/img/record.svg')" />
 
       <img class="video-footer-img" v-if="record"
-      @click="windows.stopCallback(); record = false; " :src="require('@/img/record_stop.svg')" />
+      @click="stopCallback(); record = false; " :src="require('@/img/record_stop.svg')" />
     </div>
 
     <audio id="meeting-audio" style="display: none;" />
@@ -222,6 +222,9 @@ import {
 } from 'amazon-chime-sdk-js';
 
 import RecordRTC from "recordrtc";
+import FFmpeg from "@ffmpeg/ffmpeg";
+import webmToMp4 from "webm-to-mp4";
+import fs from "fs";
 
 export default {
   name: 'meeting',
@@ -252,6 +255,8 @@ export default {
 
       // 녹화 여부
       record: false,
+      recorder: null,
+      stopCallbackState: null,
 
       /*
       attendeeTile = [
@@ -548,63 +553,40 @@ export default {
         this.deviceMute.camera = !this.deviceMute.camera;
       }
     },
+    async stopCallbackTrigger() {
+      if (this.stopCallbackState) {
+        this.stopCallback();
+      }
+    },
+    async invokeCallback(target, callback) {
+      this.addStreamStopListener(target, this.stopCallbackTrigger);
+      this.callbackRecordMeeting(target);
+    },
     async recordMeeting(callback) {
       this.record = true;
       const video = document.querySelector('video');
       const { createFFmpeg, fetchFile } = FFmpeg;
       const ffmpeg = createFFmpeg({
         log: true,
-        progress: showProgress
       });
 
-      this.invokeGetDisplayMedia(function (target) {
-        this.addStreamStopListener(target, function () {
-          if (this.stopCallback) {
-            this.stopCallback();
-          }
-
-        });
-        callback(target);
-      }, function (error) {
+      this.invokeGetDisplayMedia(this.invokeCallback, function (error) {
         console.error(error);
         alert('Unable to capture your screen. Please check console logs.\n' + error);
       });
-    },
-    async callbackRecordMeeting(target) {
-      var recorder = RecordRTC(target, {
-        type: 'video',
-        mimeType: 'video/webm'
-      });
-
-      recorder.startRecording();
-
-      this.stopCallback = function () {
-        this.stopCallback = null;
-
-        recorder.stopRecording(function () {
-          var blob = recorder.getBlob();
-          var fileUrl = URL.createObjectURL(blob);
-
-          target.stop();
-          recorder.save("screen_recording.webm");
-          recorder.destroy();
-          recorder = null;
-        });
-      };
     },
     async invokeGetDisplayMedia(success, error) {
       var displaymediastreamconstraints = {
         video: {
           displaySurface: 'monitor', // monitor, window, application, browser
-          logicalSurface: true,
+          logicalSurface: false,
           cursor: 'always' // never, always, motion
         }
       };
 
-      // above constraints are NOT supported YET
-      // that's why overridnig them
       displaymediastreamconstraints = {
-        video: true
+        video: true,
+        audio: true,
       };
 
       if (navigator.mediaDevices.getDisplayMedia) {
@@ -633,6 +615,38 @@ export default {
           callback = function () { };
         }, false);
       });
+    },
+    async callbackRecordMeeting(target) {
+      this.recorder = RecordRTC(target, {
+        type: 'video',
+        mimeType: 'video/webm'
+      });
+
+      this.target = target;
+
+      this.recorder.startRecording();
+      this.stopCallbackState = false;
+    },
+    async saveAndGetBlobCallback() {
+      var blob = this.recorder.getBlob();
+      var fileUrl = URL.createObjectURL(blob);
+      console.log(fileUrl);
+
+      var todayObj = new Date();
+      // DIDICAST_2023-03-27_12:00:00
+      var today = "DIDICAST_" + 
+                  todayObj.getFullYear() + '-' + (todayObj.getMonth() + 1) + '-' + todayObj.getDate() + "_" +
+                  todayObj.getHours() + ":" + todayObj.getMinutes() + ":" + todayObj.getSeconds();
+                
+      this.target.stop();
+
+      var a = this.recorder.save(today + ".webm");
+      console.log(a);
+      this.recorder.destroy();
+    },
+    async stopCallback() {
+      await this.recorder.stopRecording(this.saveAndGetBlobCallback);
+      this.stopCallbackState = true;
     }
   },
   created() {
