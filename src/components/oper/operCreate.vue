@@ -163,7 +163,7 @@
                             </div>
 
                             <div v-else class="row m-5">
-                                <el-date-picker type="date" placeholder="시작일" value-format="yyyyMMdd"></el-date-picker>
+                                <!-- <el-date-picker type="date" placeholder="시작일" value-format="yyyyMMdd"></el-date-picker> -->
                             </div>
 
 

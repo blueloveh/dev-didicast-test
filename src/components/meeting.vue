@@ -215,7 +215,7 @@
 import axios from 'axios';
 import {
   ConsoleLogger,
-  LogLevel,
+  // LogLevel,
   DefaultDeviceController,
   DefaultMeetingSession,
   MeetingSessionConfiguration
@@ -223,8 +223,8 @@ import {
 
 import RecordRTC from "recordrtc";
 import FFmpeg from "@ffmpeg/ffmpeg";
-import webmToMp4 from "webm-to-mp4";
-import fs from "fs";
+// import webmToMp4 from "webm-to-mp4";
+// import fs from "fs";
 
 export default {
   name: 'meeting',
@@ -295,7 +295,6 @@ export default {
           externalUserId: this.externalUserId,
         })
         .then((res) => {
-          console.log(res.data);
           this.obj = res.data;
         });
 
@@ -317,7 +316,7 @@ export default {
       // *** Audio Setting ***
       const audioObserver = {
         audioVideoDidStart: () => {
-          console.log('AudioVideo Started');
+          // console.log('AudioVideo Started');
         }
       };
       await this.meetingSession.audioVideo.addObserver(audioObserver);
@@ -325,7 +324,7 @@ export default {
       // *** Handlers for meeting events ***
       const meetingObserver = {
         eventDidReceive: (name, attributes) => {
-          console.log('Meeting event: ', name)
+          // console.log('Meeting event: ', name)
           switch (name) {
             case 'meetingStartSucceeded':
               // TODO callback when meeting has started, maybe enable/show the video controls at this point?
@@ -394,10 +393,10 @@ export default {
         // TODO handling for attendees joining/leaving
         if (present) { // An attendee joins the call
           this.attendeeCount = this.attendeeCount + 1;
-          console.log('this.attendeeCount : ' + this.attendeeCount);
+          // console.log('this.attendeeCount : ' + this.attendeeCount);
         } else { // An attendee leaves the call
           this.attendeeCount = this.attendeeCount - 1;
-          console.log('this.attendeeCount : ' + this.attendeeCount);
+          // console.log('this.attendeeCount : ' + this.attendeeCount);
         }
       };
       this.meetingSession.audioVideo.realtimeSubscribeToAttendeeIdPresence(attendeesCallback);
@@ -446,7 +445,7 @@ export default {
         // videoInputsChanged is called whenever a new webcam is connected to the computer  
         videoInputsChanged: async (freshVideoInputDeviceList) => {
           // TODO Load the audio/video input devices to vuex store
-          console.log('videoInputsChanged: ', freshVideoInputDeviceList);
+          // console.log('videoInputsChanged: ', freshVideoInputDeviceList);
         }
       };
 
@@ -455,7 +454,6 @@ export default {
       await this.meetingSession.audioVideo.addObserver(videoObserver);
 
       // audio input device 선택
-      console.log(this.selectedDevice.videoInput.index);
       await this.meetingSession.audioVideo.startAudioInput(this.audioInputDevices[this.selectedDevice.audioInput.index].deviceId)
       // audio output device 선택
       await this.deviceController.chooseAudioOutput(this.audioOutputDevices[this.selectedDevice.audioOutput.index].deviceId)
@@ -479,7 +477,6 @@ export default {
           externalUserId: this.externalUserId,
         })
         .then((res) => {
-          console.log(res.data);
           this.obj = res.data;
         });
 
@@ -494,7 +491,7 @@ export default {
           meetingId: this.obj.meetingObj.Meeting.MeetingId,
         })
         .then((res) => {
-          console.log('delete meeting ended');
+          // console.log('delete meeting ended');
         })
     },
     async updateVideo() {
@@ -506,7 +503,7 @@ export default {
           if (this.attendeeTile[i]) {
             // video tile bound가 이미 되어있음
             if (this.attendeeTile[i].tileState.boundVideoElement) {
-              console.log("already bound");
+              console.log("already bound tileId : " + i);
               continue;
             }
             // video tile bound 수행
@@ -530,12 +527,12 @@ export default {
       // mute X -> mute O
       if (!this.deviceMute.mic) {
         await this.meetingSession.audioVideo.realtimeMuteLocalAudio();
-        console.log("Local audio muted");
+        // console.log("Local audio muted");
       }
       // mute O -> mute X
       else {
         await this.meetingSession.audioVideo.realtimeUnmuteLocalAudio();
-        console.log("Local audio unmuted");
+        // console.log("Local audio unmuted");
       }
 
       this.deviceMute.mic = !this.deviceMute.mic;
@@ -564,8 +561,7 @@ export default {
     },
     async recordMeeting(callback) {
       this.record = true;
-      const video = document.querySelector('video');
-      const { createFFmpeg, fetchFile } = FFmpeg;
+      const { createFFmpeg } = FFmpeg;
       const ffmpeg = createFFmpeg({
         log: true,
       });
@@ -599,20 +595,20 @@ export default {
     async addStreamStopListener(stream, callback) {
       stream.addEventListener('ended', function () {
         callback();
-        callback = function () { };
+        // callback = function () { };
       }, false);
       stream.addEventListener('inactive', function () {
         callback();
-        callback = function () { };
+        // callback = function () { };
       }, false);
       stream.getTracks().forEach(function (track) {
         track.addEventListener('ended', function () {
           callback();
-          callback = function () { };
+          // callback = function () { };
         }, false);
         track.addEventListener('inactive', function () {
           callback();
-          callback = function () { };
+          // callback = function () { };
         }, false);
       });
     },
@@ -630,7 +626,6 @@ export default {
     async saveAndGetBlobCallback() {
       var blob = this.recorder.getBlob();
       var fileUrl = URL.createObjectURL(blob);
-      console.log(fileUrl);
 
       var todayObj = new Date();
       // DIDICAST_2023-03-27_12:00:00
@@ -640,8 +635,8 @@ export default {
                 
       this.target.stop();
 
-      var a = this.recorder.save(today + ".webm");
-      console.log(a);
+      // await fs.writeFile(today + ".mp4", Buffer.from(webmToMp4(await fs.readFilethis.recorder.name)));
+      this.recorder.save(today + ".webm");
       this.recorder.destroy();
     },
     async stopCallback() {

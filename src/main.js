@@ -12,8 +12,8 @@ import axios from 'axios'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
+// import ElementPlus from 'element-plus'
+// import 'element-plus/dist/index.css'
 
 
 createApp(App).mount('#app')
@@ -21,7 +21,7 @@ createApp(App).mount('#app')
 createApp(App).use(router).mount('#app')
 const app = createApp(App)
 app.config.globalProperties.$axios = axios;
-app.use(ElementPlus)
+// app.use(ElementPlus)
 // app.use(BootstrapVue3)
 // app.use(chime)
 // app.use(UUID)
