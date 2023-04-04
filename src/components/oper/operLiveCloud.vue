@@ -30,10 +30,10 @@
             @click="$router.push('/operMain')">
                 강의
             </span>
-            <span class="operMain-tap-item" style="color: #4DAED3;">
+            <span class="operMain-tap-item" @click="$router.push('/operCloud')">
                 영상 클라우드
             </span>
-            <span class="operMain-tap-item" @click="$router.push('operLiveCloud')">
+            <span class="operMain-tap-item" style="color: #4DAED3;">
                 라이브 클라우드
             </span>
         </div>
@@ -63,20 +63,20 @@
                 <th class="operCloud-table-header">
                     재생
                 </th>
-                <tr v-for="i in archive" :key="i"
+                <tr v-for="(i, a) in recordVideo" :key="a"
                 class="operCloud-table-row align-middle">
                     <td style="vertical-align: middle;">
                         <div class="radio red">
                             <input v-model="selectedRadio" 
                             type="radio" 
-                            name="group1" 
-                            :id="'radio' + i.video_no"
-                            :value="i.video_no" />
-                            <label :for="'radio' + i.video_no">{{ i.title }}</label>
+                            name="group" 
+                            :id="'radioCloud' + a"
+                            :value="a" />
+                            <label :for="'radioCloud' + a"> {{ i.title }} </label>
                         </div>
                     </td>
                     <td style="padding: 0px; text-align: center;">
-                        {{ i.size }}
+                        {{ (i.size / 1024 / 1024).toFixed(3) }} MB
                     </td>
                     <td class="play-button-style p-0"
                     @click="play_video(i)">
@@ -108,11 +108,14 @@
 import axios from 'axios';
 
 export default {
-    name: 'operCloud',
+    name: 'operLiveCloud',
     data() {
         return {
             archive: null,
             selectedRadio: null,
+
+            // DB를 이용하여 S3에 저장돼있는 녹화 영상을 가져옴
+            recordVideo: null
         }
     },
     props: {
@@ -127,7 +130,13 @@ export default {
                 }
             }).then((res) => {
                 this.archive = res.data.result;
-            })
+            });
+
+        await axios.get('/api/chime/live/video')
+        .then((res) => {
+            console.log(res.data);
+            this.recordVideo = res.data;
+        });
     },
     methods: {
         edit_video() {
@@ -149,7 +158,7 @@ export default {
         },
         play_video(video) {
             const title = video.title;
-            const video_url = video.url;
+            const video_url = video.path;
 
             this.$router.push({
                 path: '/archiveVideo',

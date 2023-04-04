@@ -666,35 +666,61 @@ export default {
       this.blob = this.recorder.getBlob();
       console.log(this.blob);
 
-      // blob을 array 형태로 변환
-      const buf = await this.blob.arrayBuffer();
-      const bin = new Uint8Array(buf);
+      // // blob을 array 형태로 변환
+      // const buf = await this.blob.arrayBuffer();
+      // const bin = new Uint8Array(buf);
 
-      // array type의 blob을 이용하여 새로운 blob 객체 생성 (restore blob)
-      const restoreBlob = new Blob([bin], { type: this.blob.type });
-      console.log(restoreBlob);
+      // // array type의 blob을 이용하여 새로운 blob 객체 생성 (restore blob)
+      // const restoreBlob = new Blob([bin], { type: this.blob.type });
+      // console.log(restoreBlob);
+
+      var todayObj = new Date();
+
+      var date_date = todayObj.getFullYear() + '-' + (todayObj.getMonth() + 1) + '-' + todayObj.getDate();
+      var date_time = todayObj.getHours() + "-" + todayObj.getMinutes() + "-" + todayObj.getSeconds();
+
+      // DIDICAST_2023-03-27_12:00:00 엑셀을 잘하려면
+      var today = "DIDICAST_" + date_date + "_" + date_time + " " + this.lecture.title;
+
+      // blob -> file
+      var file = new File([this.blob], today + '.webm', {
+        type: 'video/webm'
+      });
+
+      // form 형식의 datat를 post 전달
+      var formData = new FormData();
+      formData.set('file', file); // upload "File" object rather than a "Blob"
+
+      await axios.post('/api/chime/save/video', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      })
+      .then((res) => {
+          this.recordMessage = "라이브 클라우드 저장됨 : " + today;
+      });
 
       // array blob 전송
-      axios.post('/api/chime/save/video', {
-        type: this.blob.type,
-        bin: bin,
-        title: this.lecture.title
-      })
-      .then((response) => {
-        console.log(response.data);
-        // var res = Object.values(response.data);
-        // res = new Uint8Array(res);
-        // const a = new Blob([res], { type: this.blob.type });
+      // await axios.post('/api/chime/save/video', {
+      //   type: this.blob.type,
+      //   bin: bin,
+      //   title: this.lecture.title,
+      // })
+      // .then((response) => {
+      //   console.log(response.data);
+      //   // var res = Object.values(response.data);
+      //   // res = new Uint8Array(res);
+      //   // const a = new Blob([res], { type: this.blob.type });
         
-        // var url = URL.createObjectURL(a);
-        // var video = document.getElementById('blob');
-        // video.src = url;
+      //   // var url = URL.createObjectURL(a);
+      //   // var video = document.getElementById('blob');
+      //   // video.src = url;
 
-        this.recordMessage = response.data;
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      //   this.recordMessage = response.data;
+      // })
+      // .catch((error) => {
+      //   console.error(error);
+      // });
 
       // console.log(blob);
       // console.log(this.recorder.getDataURL());
