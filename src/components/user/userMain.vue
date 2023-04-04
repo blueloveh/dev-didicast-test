@@ -3,26 +3,22 @@
         <!-- nav bar -->
         <div class="row justify-content-end p-3 m-0">
             <!-- left : didicast image -->
-            <div v-if="role == 'user'"
-            class="col-10">
+            <div v-if="role == 'user'" class="col-10">
                 <img class="userMain-didicast-image" :src="require('@/img/didicast_logo.png')" />
             </div>
-            <div v-if="role == 'admin'"
-            class="col-1">
+            <div v-if="role == 'admin'" class="col-1">
                 <img class="userMain-didicast-image" :src="require('@/img/didicast_logo.png')" />
             </div>
 
             <!-- 영상 아카이브 (운영자 경우) -->
-            <div v-if="role == 'admin'"
-            class="col" style="display: flex; justify-content: flex-end;">
+            <div v-if="role == 'admin'" class="col" style="display: flex; justify-content: flex-end;">
                 <button class="userMain-video-button p-2" style="background-color: #aaa;"
                     @click="$router.push('/operCloud')">
                     영상 아카이브
                 </button>
             </div>
             <!-- right : user info -->
-            <div class="col-2" style="display: flex; justify-content: flex-end;"
-            @click="logout">
+            <div class="col-2" style="display: flex; justify-content: flex-end;" @click="logout">
                 <!-- user name -->
                 <span class="userMain-username">
                     user name : <b>{{ username }}</b>
@@ -48,12 +44,11 @@
                 </div>
             </div>
 
-            <Carousel :breakpoints="breakpoints" :settings="settings"
-                class="userMain-register-carousel">
+            <Carousel :breakpoints="breakpoints" :settings="settings" class="userMain-register-carousel">
                 <!-- 캐러셀 -->
                 <Slide v-for="(i, a) in lecture" :key="i" class="userMain-register-carousel-item">
                     <div class="userMain-register-carousel-video">
-                        <img :src="i.thumbnail" crossorigin="anonymous" style="width: 100%;"/>
+                        <img :src="i.thumbnail" crossorigin="anonymous" style="width: 100%;" />
                         <!-- {{ i.thumbnail }} -->
                     </div>
                     <div class="userMain-register-video-info">
@@ -72,7 +67,8 @@
 
                                     <span v-if="i.lecture_type == 'vod'">동영상</span>
                                 </span>
-                                <button v-if="i.price == 0 && role == 'user'" @click="user_route_video_page(i)" class="userMain-video-button">
+                                <button v-if="i.price == 0 && role == 'user'" @click="user_route_video_page(i)"
+                                    class="userMain-video-button">
                                     수강하기
                                 </button>
                                 <button v-else-if="i.paid == true && role == 'user'" @click="user_route_video_page(i)"
@@ -80,14 +76,15 @@
                                     수강하기
                                 </button>
                                 <button v-else-if="role == 'user'" class="userMain-video-button
-                                            userMain-video-button-buy" @click="lecture_buy(i)">
+                                                        userMain-video-button-buy" @click="lecture_buy(i)">
                                     {{ i.price }} 원 구매하기
                                 </button>
-                                <button v-else-if="i.lecture_type == 'vod' && role == 'admin'" class="userMain-video-button" @click="user_route_video_page(i)">
+                                <button v-else-if="i.lecture_type == 'vod' && role == 'admin'" class="userMain-video-button"
+                                    @click="user_route_video_page(i)">
                                     확인하기
                                 </button>
                                 <button v-else-if="i.lecture_type == 'live' && role == 'admin'" class="userMain-video-button
-                                            userMain-video-button-buy" @click="user_route_video_page(i)">
+                                                        userMain-video-button-buy" @click="user_route_video_page(i)">
                                     입장하기
                                 </button>
                             </div>
@@ -116,12 +113,11 @@
             </div>
 
             <!-- 맞춤 추천 강의 -->
-            <Carousel :breakpoints="breakpoints" :settings="settings"
-                class="userMain-register-carousel">
+            <Carousel :breakpoints="breakpoints" :settings="settings" class="userMain-register-carousel">
                 <!-- 캐러셀 -->
                 <Slide v-for="(i, a) in recommend_lecture" :key="i" class="userMain-register-carousel-item">
                     <div class="userMain-register-carousel-video">
-                        <img :src="i.thumbnail" crossorigin="anonymous" style="width: 100%;"/>
+                        <img :src="i.thumbnail" crossorigin="anonymous" style="width: 100%;" />
                         <!-- {{ i.thumbnail }} -->
                     </div>
                     <div class="userMain-register-video-info">
@@ -140,7 +136,8 @@
 
                                     <span v-if="i.lecture_type == 'vod'">동영상</span>
                                 </span>
-                                <button v-if="i.price == 0 && role == 'user'" @click="user_route_video_page(i)" class="userMain-video-button">
+                                <button v-if="i.price == 0 && role == 'user'" @click="user_route_video_page(i)"
+                                    class="userMain-video-button">
                                     수강하기
                                 </button>
                                 <button v-else-if="i.paid == true && role == 'user'" @click="user_route_video_page(i)"
@@ -148,14 +145,15 @@
                                     수강하기
                                 </button>
                                 <button v-else-if="role == 'user'" class="userMain-video-button
-                                            userMain-video-button-buy" @click="lecture_buy(i)">
+                                                        userMain-video-button-buy" @click="lecture_buy(i)">
                                     {{ i.price }} 원 구매하기
                                 </button>
-                                <button v-else-if="i.lecture_type == 'vod' && role == 'admin'" class="userMain-video-button" @click="user_route_video_page(i)">
+                                <button v-else-if="i.lecture_type == 'vod' && role == 'admin'" class="userMain-video-button"
+                                    @click="user_route_video_page(i)">
                                     확인하기
                                 </button>
                                 <button v-else-if="i.lecture_type == 'live' && role == 'admin'" class="userMain-video-button
-                                            userMain-video-button-buy" @click="user_route_video_page(i)">
+                                                        userMain-video-button-buy" @click="user_route_video_page(i)">
                                     입장하기
                                 </button>
                             </div>
@@ -184,12 +182,11 @@
             </div>
 
             <!-- 수강 기간 매핑 강의 -->
-            <Carousel :breakpoints="breakpoints" :settings="settings" 
-                class="userMain-register-carousel">
+            <Carousel :breakpoints="breakpoints" :settings="settings" class="userMain-register-carousel">
                 <!-- 캐러셀 -->
                 <Slide v-for="(i, a) in mapping_lecture" :key="i" class="userMain-register-carousel-item">
                     <div class="userMain-register-carousel-video">
-                        <img :src="i.thumbnail" crossorigin="anonymous" style="width: 100%;"/>
+                        <img :src="i.thumbnail" crossorigin="anonymous" style="width: 100%;" />
                         <!-- {{ i.thumbnail }} -->
                     </div>
                     <div class="userMain-register-video-info">
@@ -208,7 +205,8 @@
 
                                     <span v-if="i.lecture_type == 'vod'">동영상</span>
                                 </span>
-                                <button v-if="i.price == 0 && role == 'user'" @click="user_route_video_page(i)" class="userMain-video-button">
+                                <button v-if="i.price == 0 && role == 'user'" @click="user_route_video_page(i)"
+                                    class="userMain-video-button">
                                     수강하기
                                 </button>
                                 <button v-else-if="i.paid == true && role == 'user'" @click="user_route_video_page(i)"
@@ -216,14 +214,15 @@
                                     수강하기
                                 </button>
                                 <button v-else-if="role == 'user'" class="userMain-video-button
-                                            userMain-video-button-buy" @click="lecture_buy(i)">
+                                                        userMain-video-button-buy" @click="lecture_buy(i)">
                                     {{ i.price }} 원 구매하기
                                 </button>
-                                <button v-else-if="i.lecture_type == 'vod' && role == 'admin'" class="userMain-video-button" @click="user_route_video_page(i)">
+                                <button v-else-if="i.lecture_type == 'vod' && role == 'admin'" class="userMain-video-button"
+                                    @click="user_route_video_page(i)">
                                     확인하기
                                 </button>
                                 <button v-else-if="i.lecture_type == 'live' && role == 'admin'" class="userMain-video-button
-                                            userMain-video-button-buy" @click="user_route_video_page(i)">
+                                                        userMain-video-button-buy" @click="user_route_video_page(i)">
                                     입장하기
                                 </button>
                             </div>
@@ -250,10 +249,9 @@
             <div>
                 대표 : 박기웅 | 사업자 등록번호 : 627-88-00384
             </div>
-            <div v-if="role == 'admin'" 
-            style="float: right;">
+            <div v-if="role == 'admin'" style="float: right;">
                 <button style=" background-color: #aaa; border: None; color: white; padding: 10px 20px; color: white;"
-                @click="purchase_delete_all">초기화</button>
+                    @click="purchase_delete_all">초기화</button>
             </div>
             <div>
                 서울 특별시 강남구 강남대로 132길 21 3층
@@ -262,10 +260,6 @@
                 [HQ] 부산광역시 해운대구 센텀중앙로 97, 센텀스카이비즈 A-704
             </div>
         </div>
-
-        <!-- <button @click="createMeeting()">
-            meeting
-        </button> -->
     </div>
 </template>
   
@@ -318,36 +312,36 @@ export default {
         const token = 'Bearer ' + localStorage.getItem('token')
         await axios.get(
             'https://api-government.didisam.com/api/lecture',
-        {
-            headers: {
-                Authorization: token
-            }
-        }).then((res) => {
-            this.lecture = res.data.result;
-            this.lecture_len = this.lecture.length;
-        })
+            {
+                headers: {
+                    Authorization: token
+                }
+            }).then((res) => {
+                this.lecture = res.data.result;
+                this.lecture_len = this.lecture.length;
+            })
 
         await axios.get(
             'https://api-government.didisam.com/api/lecture/recommend',
-        {
-            headers: {
-                Authorization: token
-            }
-        }).then((res) => {
-            this.recommend_lecture = res.data.result;
-            this.recommend_lecture_len = this.recommend_lecture.length;
-        })
+            {
+                headers: {
+                    Authorization: token
+                }
+            }).then((res) => {
+                this.recommend_lecture = res.data.result;
+                this.recommend_lecture_len = this.recommend_lecture.length;
+            })
 
         await axios.get(
             'https://api-government.didisam.com/api/lecture/mapping',
-        {
-            headers: {
-                Authorization: token
-            }
-        }).then((res) => {
-            this.mapping_lecture = res.data.result;
-            this.mapping_lecture_len = this.mapping_lecture.length;
-        })
+            {
+                headers: {
+                    Authorization: token
+                }
+            }).then((res) => {
+                this.mapping_lecture = res.data.result;
+                this.mapping_lecture_len = this.mapping_lecture.length;
+            })
         this.username = localStorage.getItem('username')
         this.role = localStorage.getItem('role')
     },
@@ -359,26 +353,6 @@ export default {
         Navigation,
     },
     methods: {
-        async createMeeting() {
-            try {
-                const response = await axios.post('/api/chimeMeeting/createMeeting')
-                const meetingId = response.data.Meeting.MeetingId
-                const joinToken = response.data.JoinInfo.Attendee.AttendeeId
-
-                console.log(meetingId);
-                console.log(joinToken);
-
-                this.$router.push({
-                    path: '/test',
-                    query: {
-                        meetingId: meetingId,
-                        joinToken: joinToken
-                    }
-                })
-            } catch (error) {
-                console.error(error)
-            }
-        },
         user_route_video_page: async function (now_lecture) {
             const token = 'Bearer ' + localStorage.getItem('token')
             await axios.get(
@@ -388,6 +362,7 @@ export default {
                         Authorization: token
                     }
                 }).then((res) => {
+                    // 동영상 강의인 경우
                     if (now_lecture.lecture_type == 'vod') {
                         const video_url = res.data.result.video_url;
 
@@ -400,15 +375,45 @@ export default {
                             }
                         })
                     }
+                    // 라이브 강의인 경우
                     else {
+                        // const url = 'runDIDICAM://';
+                        // const exec = document.createElement('a');
+                        // exec.setAttribute('href', url);
+                        // exec.click();
 
-                        const url = 'runDIDICAM://';
-                        const exec = document.createElement('a');
-                        exec.setAttribute('href', url);
-                        exec.click();
-
-                        const live_url = res.data.result.live_url;
-                        window.open(live_url, "_blank");
+                        // const live_url = res.data.result.live_url;
+                        // window.open(live_url, "_blank");
+                        
+                        // user인 경우, 현재 라이브 강의가 존재하는지 확인한다. 존재한다면 입장하고, 존재하지 않는다면 경고문을 띄운다.
+                        if (this.role == 'user') {
+                            axios.post('/api/chime/meetingId', {
+                                externalMeetingId: now_lecture.title
+                            }).then((res) => {
+                                if (res.data == "none") {
+                                    alert("라이브 강의가 존재하지 않습니다. ");
+                                }
+                                else {
+                                    this.$router.push({
+                                        path: '/meeting',
+                                        query: {
+                                            // router query push할 때, JSON 데이터를 유지하려면 stringfy와 parse 과정이 필요하다.
+                                            lecture: JSON.stringify(now_lecture),
+                                        }
+                                    })
+                                }
+                            });
+                        }
+                        // admin일 경우, 라이브 강의 방을 생성하여 입장할 수 있도록 바로 meeting 페이지로 이동한다.
+                        else if (this.role == 'admin') {
+                            this.$router.push({
+                                path: '/meeting',
+                                query: {
+                                    // router query push할 때, JSON 데이터를 유지하려면 stringfy와 parse 과정이 필요하다.
+                                    lecture: JSON.stringify(now_lecture),
+                                }
+                            })
+                        }
                     }
                 })
         },
@@ -423,6 +428,7 @@ export default {
                         Authorization: token
                     }
                 }).then((res) => {
+                    // 동영상 강의인 경우
                     if (now_lecture.lecture_type == 'vod') {
                         const video_url = res.data.result.video_url;
 
@@ -435,20 +441,51 @@ export default {
                             }
                         })
                     }
+                    // 라이브 강의인 경우
                     else {
-                        const live_url = res.data.result.live_url;
-                        
-                        window.open(live_url, "_blank");
+                        // const live_url = res.data.result.live_url;
+
+                        // window.open(live_url, "_blank");
+
+                        // user인 경우, 현재 라이브 강의가 존재하는지 확인한다. 존재한다면 입장하고, 존재하지 않는다면 경고문을 띄운다.
+                        if (this.role == 'user') {
+                            axios.post('/api/chime/meetingId', {
+                                externalMeetingId: now_lecture.title
+                            }).then((res) => {
+                                if (res.data == "none") {
+                                    alert("라이브 강의가 존재하지 않습니다. ");
+                                }
+                                else {
+                                    this.$router.push({
+                                        path: '/meeting',
+                                        query: {
+                                            // router query push할 때, JSON 데이터를 유지하려면 stringfy와 parse 과정이 필요하다.
+                                            lecture: JSON.stringify(now_lecture),
+                                        }
+                                    })
+                                }
+                            });
+                        }
+                        // admin일 경우, 라이브 강의 방을 생성하여 입장할 수 있도록 바로 meeting 페이지로 이동한다.
+                        else if (this.role == 'admin') {
+                            this.$router.push({
+                                path: '/meeting',
+                                query: {
+                                    // router query push할 때, JSON 데이터를 유지하려면 stringfy와 parse 과정이 필요하다.
+                                    lecture: JSON.stringify(now_lecture),
+                                }
+                            })
+                        }
                     }
                 })
         },
-        logout: async function (){
+        logout: async function () {
             const token = 'Bearer ' + localStorage.getItem('token')
             var config = {
                 method: 'post',
                 maxBodyLength: Infinity,
                 url: 'https://api-government.didisam.com/api/logout',
-                headers: { 
+                headers: {
                     'Authorization': token
                 }
             }
@@ -460,15 +497,15 @@ export default {
             const token = 'Bearer ' + localStorage.getItem('token')
             axios.delete(
                 'https://api-government.didisam.com/api/lecture',
-            {
-                headers: {
-                    Authorization: token
-                }
-            }).then((res) => {
-                this.$router.go(0);
-            })
+                {
+                    headers: {
+                        Authorization: token
+                    }
+                }).then((res) => {
+                    this.$router.go(0);
+                })
         }
-     },
+    },
 }
 </script>
   

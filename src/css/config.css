@@ -13,6 +13,13 @@
     padding: 20px 50px;
 }
 
+.config-content {
+    font-size: 18px;
+    color: white;
+    font-weight: 600;
+    padding: 0px 50px;
+}
+
 .config-video {
     display: flex;
     width: 95%;
@@ -192,4 +199,20 @@
 
     filter: brightness(70%);
     cursor: pointer;
+}
+
+.video-footer-exit {
+    position: absolute;
+    right: 0;
+    margin: 30px;
+    
+    width: 200px;
+    background-color: #4DAED3;
+    border: None;
+    border-radius: 15px;
+    padding: 15px 30px 15px 30px;
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+	cursor: pointer; 
 }

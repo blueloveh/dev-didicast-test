@@ -32,6 +32,9 @@
             <span class="operMain-tap-item" @click="$router.push('/operCloud')">
                 영상 클라우드
             </span>
+            <span class="operMain-tap-item" @click="$router.push('operLiveCloud')">
+                라이브 클라우드
+            </span>
         </div>
         <hr /><br />
 

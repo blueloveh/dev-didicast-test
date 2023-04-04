@@ -3,7 +3,15 @@
     <div class="container-fluid">
       <!-- 미리보기 타이틀 -->
       <div class="row config-title">
-        Preview
+        Preview ({{ role }})
+      </div>
+
+      <div v-if="admin" class="row config-content">
+        '{{ lecture.title }}' 강의를 생성하여 참가합니다.
+      </div>
+
+      <div v-if="!admin" class="row config-content">
+        '{{ lecture.title }}' 강의에 참가합니다.
       </div>
 
       <!-- 미리보기 및 장치 설정 -->
@@ -117,7 +125,7 @@
   <div class="meeting-container" v-if="configureState == false">
     <!-- 10% -->
     <div class="meeting-nav">
-      meeting title (참가자 수 : {{ attendeeCount }})
+      {{ lecture.title }} (참가자 수 : {{ attendeeCount }})
     </div>
 
     <!-- 80% -->
@@ -151,11 +159,15 @@
       <img v-if="deviceMute.mic" @click="toggleMuteAudio" class="video-footer-img" :src="require('@/img/mic_mute.svg')" />
       <img v-if="!deviceMute.mic" @click="toggleMuteAudio" class="video-footer-img" :src="require('@/img/mic.svg')" />
 
-      <img class="video-footer-img" v-if="!record"
-      @click="recordMeeting(callbackRecordMeeting)" :src="require('@/img/record.svg')" />
+      <img class="video-footer-img" v-if="!record && admin" @click="recordMeeting(callbackRecordMeeting)"
+        :src="require('@/img/record.svg')" />
 
-      <img class="video-footer-img" v-if="record"
-      @click="stopCallback(); record = false; " :src="require('@/img/record_stop.svg')" />
+      <img class="video-footer-img" v-if="record && admin" @click="stopCallback(); record = false; "
+        :src="require('@/img/record_stop.svg')" />
+      <p class="m-5" v-if="admin">{{ recordMessage }}</p>
+
+      <button v-if="admin" class="video-footer-exit" @click="meetingExit">강의 종료</button>
+      <button v-if="!admin" class="video-footer-exit" @click="meetingExit">강의 나가기</button>
     </div>
 
     <audio id="meeting-audio" style="display: none;" />
@@ -207,7 +219,13 @@
         <textarea :value="obj.meetingObj.Meeting.MeetingId"></textarea>
         <p> : 현재 회의의 ID 입니다. </p>
       </div>
+
+      <video controls id="blob">
+        <source id="source">
+      </video>
     </div>
+
+    <video width="200px" autoplay id="test"></video>
   </div>
 </template>
   
@@ -247,6 +265,12 @@ export default {
 
       updateVideoDone: true, // 참석자 video를 모두 update 했는가?
 
+      admin: false, // admin 계정인가?
+      role: null,
+      username: null,
+
+      lecture: JSON.parse(this.$route.query.lecture), // 강의 제목
+
       // 장치 활성화 여부
       deviceMute: {
         camera: false,
@@ -257,6 +281,8 @@ export default {
       record: false,
       recorder: null,
       stopCallbackState: null,
+      blob: null,
+      recordMessage: "",
 
       /*
       attendeeTile = [
@@ -291,8 +317,10 @@ export default {
       await axios.post('/api/chime/meetingSession',
         {
           state: false,
-          externalMeetingId: this.externalMeetingId,
-          externalUserId: this.externalUserId,
+          // externalMeetingId: this.externalMeetingId,
+          // externalUserId: this.externalUserId,
+          externalMeetingId: this.lecture.title,
+          externalUserId: 'admin',
         })
         .then((res) => {
           this.obj = res.data;
@@ -470,11 +498,20 @@ export default {
     },
     // 회의 참가
     async joinMeeting() {
+      var MeetingId = null;
+      await axios.post('/api/chime/meetingId', {
+        externalMeetingId: this.lecture.title
+      }).then((res) => {
+        MeetingId = res.data;
+      });
+
       await axios.post('/api/chime/meetingSession',
         {
           state: true,
-          meetingId: this.searchMeetingId,
-          externalUserId: this.externalUserId,
+          // meetingId: this.searchMeetingId,
+          // externalUserId: this.externalUserId,
+          meetingId: MeetingId,
+          externalUserId: this.username,
         })
         .then((res) => {
           this.obj = res.data;
@@ -550,6 +587,8 @@ export default {
         this.deviceMute.camera = !this.deviceMute.camera;
       }
     },
+
+    // 강의 녹화 기능 관련 함수
     async stopCallbackTrigger() {
       if (this.stopCallbackState) {
         this.stopCallback();
@@ -624,28 +663,83 @@ export default {
       this.stopCallbackState = false;
     },
     async saveAndGetBlobCallback() {
-      var blob = this.recorder.getBlob();
-      var fileUrl = URL.createObjectURL(blob);
+      this.blob = this.recorder.getBlob();
+      console.log(this.blob);
 
-      var todayObj = new Date();
-      // DIDICAST_2023-03-27_12:00:00
-      var today = "DIDICAST_" + 
-                  todayObj.getFullYear() + '-' + (todayObj.getMonth() + 1) + '-' + todayObj.getDate() + "_" +
-                  todayObj.getHours() + ":" + todayObj.getMinutes() + ":" + todayObj.getSeconds();
-                
+      // blob을 array 형태로 변환
+      const buf = await this.blob.arrayBuffer();
+      const bin = new Uint8Array(buf);
+
+      // array type의 blob을 이용하여 새로운 blob 객체 생성 (restore blob)
+      const restoreBlob = new Blob([bin], { type: this.blob.type });
+      console.log(restoreBlob);
+
+      // array blob 전송
+      axios.post('/api/chime/save/video', {
+        type: this.blob.type,
+        bin: bin,
+        title: this.lecture.title
+      })
+      .then((response) => {
+        console.log(response.data);
+        // var res = Object.values(response.data);
+        // res = new Uint8Array(res);
+        // const a = new Blob([res], { type: this.blob.type });
+        
+        // var url = URL.createObjectURL(a);
+        // var video = document.getElementById('blob');
+        // video.src = url;
+
+        this.recordMessage = response.data;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+      // console.log(blob);
+      // console.log(this.recorder.getDataURL());
+      // var fileUrl = URL.createObjectURL(blob);
+      // console.log(fileUrl);
+
+      // var formData = new FormData();
+      // formData.append('key', blob);
+
       this.target.stop();
-
-      // await fs.writeFile(today + ".mp4", Buffer.from(webmToMp4(await fs.readFilethis.recorder.name)));
-      this.recorder.save(today + ".webm");
       this.recorder.destroy();
     },
     async stopCallback() {
       await this.recorder.stopRecording(this.saveAndGetBlobCallback);
+
       this.stopCallbackState = true;
-    }
+    },
+
+    // 강의 나가기
+    async meetingExit() {
+      if(this.admin) this.deleteMeeting();
+
+      // 장비 해제
+      await this.meetingSession.audioVideo.stopVideoInput();
+      await this.meetingSession.audioVideo.stopAudioInput();
+      await this.meetingSession.audioVideo.chooseAudioOutput();
+      await this.meetingSession.audioVideo.stop();
+
+      this.$router.go(-1);
+    },
   },
-  created() {
+  async created() {
     this.attendeeTile = new Array(100);
+    this.role = localStorage.getItem('role');
+    this.username = localStorage.getItem('username')
+
+    // admin일 경우, 회의를 생성하여 바로 참가
+    if (this.role == 'admin') {
+      this.admin = true;
+      await this.createMeeting();
+    }
+    // user일 경우, 강의명을 이용하여 MeetingId를 찾아 참가자
+    else {
+      await this.joinMeeting();
+    }
   },
   async updated() {
     await this.updateVideo();

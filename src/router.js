@@ -7,6 +7,7 @@ import operMain from '@/components/oper/operMain.vue';
 import operCloud from '@/components/oper/operCloud.vue';
 import operCreate from '@/components/oper/operCreate.vue';
 import operVideo from '@/components/oper/operVideo.vue';
+import operLiveCloud from '@/components/oper/operLiveCloud.vue';
 
 const routes = [
     {
@@ -40,6 +41,10 @@ const routes = [
     {
         path: "/archiveVideo",
         component: operVideo,
+    },
+    {
+        path: "/operLiveCloud",
+        component: operLiveCloud,
     }
   ];
   
