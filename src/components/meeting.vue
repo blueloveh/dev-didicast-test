@@ -25,8 +25,10 @@
 
           <!-- mute -->
           <div class="config-img-container">
-            <img class="config-img-camera" :src="require('@/img/camera.svg')" />
-            <img class="config-img-mic" :src="require('@/img/mic.svg')" />
+            <img @click="deviceMute.camera = true"
+            class="config-img-camera" :src="require('@/img/camera.svg')" />
+            <img @click="deviceMute.mic = true"
+            class="config-img-mic" :src="require('@/img/mic.svg')" />
           </div>
         </div>
 
@@ -143,7 +145,7 @@
       <!-- 수강생 -->
       <!-- 임시 : 상대방들 -->
       <div class="student-video-container" v-if="attendeeCount > 1">
-        <video class="main-video" :id="'main-video-' + (i + 1)" v-for="i in (attendeeCount - 1)" :key="i">
+        <video class="main-video" :id="'main-video-' + (i - 1)" v-for="i in (attendeeCount - 1)" :key="i">
         </video>
       </div>
 
@@ -175,6 +177,10 @@
   </div>
 
   <div class="test-container">
+    <div v-for="i in attendeeTile" :key="i">
+      &nbsp;&nbsp;&nbsp;{{i.externalUserId}}
+    </div>
+
     <div class="container-fluid">
       <div>
         <form>
@@ -293,7 +299,7 @@ export default {
       ]
       */
       attendeeTile: [], // 참석자 video tile 배열 (DOM 생성 전에 구성됨)
-      attendeeCount: null, // 현재 참석자 수
+      attendeeCount: 0, // 현재 참석자 수
 
       selectedDevice: {
         videoInput: {
@@ -416,15 +422,17 @@ export default {
       const localVideo = document.getElementById('local-video');
 
       // Subscribe to Attendees Joining/Leaving the meeting
-      const attendeesCallback = (presentAttendeeId, present) => {
-        console.log(`Attendee ID: ${presentAttendeeId} Present: ${present}`);
+      const attendeesCallback = async (presentAttendeeId, present) => {
+        // console.log(`Attendee ID: ${presentAttendeeId} Present: ${present}`);
         // TODO handling for attendees joining/leaving
         if (present) { // An attendee joins the call
           this.attendeeCount = this.attendeeCount + 1;
           // console.log('this.attendeeCount : ' + this.attendeeCount);
+          await this.updateVideo();
         } else { // An attendee leaves the call
           this.attendeeCount = this.attendeeCount - 1;
           // console.log('this.attendeeCount : ' + this.attendeeCount);
+          await this.updateVideo();
         }
       };
       this.meetingSession.audioVideo.realtimeSubscribeToAttendeeIdPresence(attendeesCallback);
@@ -450,14 +458,33 @@ export default {
           }
           else {
             console.log(tileState.tileId + " : ", tileState.boundExternalUserId);
-            this.attendeeTile[tileState.tileId] = {
+            // this.attendeeTile[tileState.tileId] = {
+            //   tileState: tileState,
+            //   externalUserId: tileState.boundExternalUserId
+            // };
+            
+            console.log("attendee Tile PUSH");
+
+            console.log("원격 수(before) : " + this.attendeeTile.length);
+
+            if(this.attendeeTile.length == (this.attendeeCount - 1)) return;
+
+            // 현재 tile이 이미 bind 되어있다면, tile 배열에 추가하지 않는다.
+            if(tileState.boundVideoElement) return;
+            this.attendeeTile.push({
               tileState: tileState,
               externalUserId: tileState.boundExternalUserId
-            };
+            });
+
+            console.log("참여자 수 : " + this.attendeeCount);
+            console.log("원격 수(after) : " + this.attendeeTile.length);
+
           }
+
+          await this.updateVideo();
         },
         // 동영상 타일이 제거될 때 호출됨
-        videoTileWasRemoved: (tileId) => {
+        videoTileWasRemoved: async (tileId) => {
           // 이렇게 하면, 미팅에 대한 연결이 끊기는 비디오에 대해 더 정확한 콜백이 제공됨으로 보임
           console.log(`%cvideoTileWasRemoved. [tileId=${tileId}]`, "color: orange");
           // 해당 비디오 'isActive' 플래그를 false로 설정
@@ -465,6 +492,8 @@ export default {
           // videoObj.isActive = false;
 
           this.meetingSession.audioVideo.removeVideoTile(tileId);
+          this.meetingSession.audioVideo.unbindVideoElement(tileId);
+          this.attendeeTile = this.attendeeTile.filter(id => id.tileState.tileId !== tileId);
         },
       };
 
@@ -532,12 +561,14 @@ export default {
         })
     },
     async updateVideo() {
-      if (this.attendeeCount > 1) {
+      // console.log(this.attendeeCount + " " + this.attendeeTile.length);
+      // if (this.attendeeCount > 1) {
+      if (this.attendeeTile.length >= 1) {
         console.log("updated attendeeCount : " + this.attendeeCount);
 
-        for (var i = 2; i <= this.attendeeCount; i++) {
+        for (let i = 0; i < this.attendeeTile.length; i++) {
           // video tile 객체 존재 O
-          if (this.attendeeTile[i]) {
+          // if (this.attendeeTile[i]) {
             // video tile bound가 이미 되어있음
             if (this.attendeeTile[i].tileState.boundVideoElement) {
               console.log("already bound tileId : " + i);
@@ -545,18 +576,18 @@ export default {
             }
             // video tile bound 수행
             else {
-              var tmp_element = document.getElementById('main-video-' + i);
+              var tmp_element = await document.getElementById('main-video-' + i);
               await this.meetingSession.audioVideo.bindVideoElement(this.attendeeTile[i].tileState.tileId, tmp_element);
               console.log('bound video id : ' + this.attendeeTile[i].tileState.tileId);
 
               this.updateVideoDone = true;
             }
-          }
+          // }
           // video tile 객체 존재 X -> update false
-          else {
-            console.log("failed bound video " + i);
-            this.updateVideoDone = false;
-          }
+          // else {
+          //   console.log("failed bound video " + i);
+          //   this.updateVideoDone = false;
+          // }
         }
       }
     },
@@ -564,12 +595,12 @@ export default {
       // mute X -> mute O
       if (!this.deviceMute.mic) {
         await this.meetingSession.audioVideo.realtimeMuteLocalAudio();
-        // console.log("Local audio muted");
+        console.log("Local audio muted");
       }
       // mute O -> mute X
       else {
         await this.meetingSession.audioVideo.realtimeUnmuteLocalAudio();
-        // console.log("Local audio unmuted");
+        console.log("Local audio unmuted");
       }
 
       this.deviceMute.mic = !this.deviceMute.mic;
@@ -753,7 +784,8 @@ export default {
     },
   },
   async created() {
-    this.attendeeTile = new Array(100);
+    // this.attendeeTile = new Array(100);
+    this.attendeeTile = [];
     this.role = localStorage.getItem('role');
     this.username = localStorage.getItem('username')
 
