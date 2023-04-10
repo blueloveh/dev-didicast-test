@@ -428,12 +428,11 @@ export default {
         if (present) { // An attendee joins the call
           this.attendeeCount = this.attendeeCount + 1;
           // console.log('this.attendeeCount : ' + this.attendeeCount);
-          await this.updateVideo();
         } else { // An attendee leaves the call
           this.attendeeCount = this.attendeeCount - 1;
           // console.log('this.attendeeCount : ' + this.attendeeCount);
-          await this.updateVideo();
         }
+        await this.updateVideo();
       };
       this.meetingSession.audioVideo.realtimeSubscribeToAttendeeIdPresence(attendeesCallback);
 
@@ -467,7 +466,7 @@ export default {
 
             console.log("원격 수(before) : " + this.attendeeTile.length);
 
-            if(this.attendeeTile.length == (this.attendeeCount - 1)) return;
+            // if(this.attendeeTile.length == (this.attendeeCount - 1)) return;
 
             // 현재 tile이 이미 bind 되어있다면, tile 배열에 추가하지 않는다.
             if(tileState.boundVideoElement) return;
@@ -494,6 +493,7 @@ export default {
           this.meetingSession.audioVideo.removeVideoTile(tileId);
           this.meetingSession.audioVideo.unbindVideoElement(tileId);
           this.attendeeTile = this.attendeeTile.filter(id => id.tileState.tileId !== tileId);
+          await this.updateVideo();
         },
       };
 
