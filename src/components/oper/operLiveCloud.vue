@@ -45,10 +45,10 @@
                 + 영상 업로드
             </button> -->
 
-            <button class="operCloud-button"
+            <!-- <button class="operCloud-button"
             @click="edit_video">
                 아카이브 영상 편집
-            </button>
+            </button> -->
         </div>
 
         <!-- 아카이브 테이블 -->

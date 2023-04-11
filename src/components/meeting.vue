@@ -466,7 +466,7 @@ export default {
 
             console.log("원격 수(before) : " + this.attendeeTile.length);
 
-            // if(this.attendeeTile.length == (this.attendeeCount - 1)) return;
+            if(this.attendeeTile.length == (this.attendeeCount - 1)) return;
 
             // 현재 tile이 이미 bind 되어있다면, tile 배열에 추가하지 않는다.
             if(tileState.boundVideoElement) return;
@@ -810,4 +810,3 @@ export default {
 <style>
 @import "@/css/config.css";
 </style>
-  

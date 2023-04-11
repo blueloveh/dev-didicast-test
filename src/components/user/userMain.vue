@@ -18,13 +18,13 @@
                 </button>
             </div>
             <!-- right : user info -->
-            <div class="col-2" style="display: flex; justify-content: flex-end;" @click="logout">
+            <div class="col-2" style="display: flex; justify-content: flex-end;">
                 <!-- user name -->
                 <span class="userMain-username">
                     user name : <b>{{ username }}</b>
                 </span>
                 <!-- user image -->
-                <img class="userMain-profile-image" :src="require('@/img/profile.png')" style="cursor: pointer;" />
+                <img  @click="logout" class="userMain-profile-image" :src="require('@/img/profile.png')" style="cursor: pointer;" />
             </div>
         </div>
 
