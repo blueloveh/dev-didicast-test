@@ -18,6 +18,7 @@ module.exports = defineConfig({
   devServer: { // api 요청이 있을때 어디에서 처리할지를 설정
     proxy: {
       '/api': {
+        // 개발 서버에서만 적용됨 -> 빌드 후, 운영 서버에서는 적용 X
         target: 'http://ec2-43-200-233-190.ap-northeast-2.compute.amazonaws.com:3001/',
         // target: 'http://localhost:3001',
         changeOrigin: true,

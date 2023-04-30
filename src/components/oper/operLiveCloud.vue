@@ -132,7 +132,7 @@ export default {
                 this.archive = res.data.result;
             });
 
-        await axios.get('/api/chime/live/video')
+        await axios.get('http://ec2-43-200-233-190.ap-northeast-2.compute.amazonaws.com:3001/api/chime/live/video')
         .then((res) => {
             console.log(res.data);
             this.recordVideo = res.data;

@@ -320,7 +320,7 @@ export default {
   methods: {
     // 회의 생성
     async createMeeting() {
-      await axios.post('/api/chime/meetingSession',
+      await axios.post('http://ec2-43-200-233-190.ap-northeast-2.compute.amazonaws.com:3001/api/chime/meetingSession',
         {
           state: false,
           // externalMeetingId: this.externalMeetingId,
@@ -528,13 +528,13 @@ export default {
     // 회의 참가
     async joinMeeting() {
       var MeetingId = null;
-      await axios.post('/api/chime/meetingId', {
+      await axios.post('http://ec2-43-200-233-190.ap-northeast-2.compute.amazonaws.com:3001/api/chime/meetingId', {
         externalMeetingId: this.lecture.title
       }).then((res) => {
         MeetingId = res.data;
       });
 
-      await axios.post('/api/chime/meetingSession',
+      await axios.post('http://ec2-43-200-233-190.ap-northeast-2.compute.amazonaws.com:3001/api/chime/meetingSession',
         {
           state: true,
           // meetingId: this.searchMeetingId,
@@ -552,7 +552,7 @@ export default {
     async deleteMeeting() {
       await this.toggleConfigureState();
 
-      await axios.post('/api/chime/deleteMeeting',
+      await axios.post('http://ec2-43-200-233-190.ap-northeast-2.compute.amazonaws.com:3001/api/chime/deleteMeeting',
         {
           meetingId: this.obj.meetingObj.Meeting.MeetingId,
         })
@@ -722,7 +722,7 @@ export default {
       var formData = new FormData();
       formData.set('file', file); // upload "File" object rather than a "Blob"
 
-      await axios.post('/api/chime/save/video', formData, {
+      await axios.post('http://ec2-43-200-233-190.ap-northeast-2.compute.amazonaws.com:3001/api/chime/save/video', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         }
@@ -732,7 +732,7 @@ export default {
       });
 
       // array blob 전송
-      // await axios.post('/api/chime/save/video', {
+      // await axios.post('http://ec2-43-200-233-190.ap-northeast-2.compute.amazonaws.com:3001/api/chime/save/video', {
       //   type: this.blob.type,
       //   bin: bin,
       //   title: this.lecture.title,
