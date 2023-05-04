@@ -132,8 +132,7 @@
 
     <!-- 80% -->
     <div class="video-container">
-      <!-- 강사 -->
-      <!-- 임시 : 본인 -->
+      <!-- 본인 -->
       <div :class="{
         'lecture-video-container-alone': attendeeCount == 1,
         'lecture-video-container': attendeeCount > 1
@@ -142,8 +141,7 @@
         </video>
       </div>
 
-      <!-- 수강생 -->
-      <!-- 임시 : 상대방들 -->
+      <!-- 상대방들 -->
       <div class="student-video-container" v-if="attendeeTile.length >= 1">
         <video class="main-video" :id="'main-video-' + (i - 1)" v-for="i in attendeeTile.length" :key="i">
         </video>
@@ -192,8 +190,7 @@
       &nbsp;&nbsp;&nbsp;{{i}}
     </div> -->
 
-    <!-- <div>{{ test }}</div> -->
-    <div class="container-fluid">
+    <!-- <div class="container-fluid">
       <div>
         <form>
           <input v-model="externalMeetingId" type="text" placeholder="생성할 회의의 이름을 입력하세요." />
@@ -237,11 +234,7 @@
         <textarea :value="obj.meetingObj.Meeting.MeetingId"></textarea>
         <p> : 현재 회의의 ID 입니다. </p>
       </div>
-
-      <video controls id="blob">
-        <source id="source">
-      </video>
-    </div>
+    </div> -->
 
     <video width="200px" autoplay id="test"></video>
   </div>
@@ -498,7 +491,7 @@ export default {
 
           }
 
-          await this.updateVideo();
+          // await this.updateVideo();
         },
         // 동영상 타일이 제거될 때 호출됨
         videoTileWasRemoved: async (tileId) => {
@@ -515,7 +508,7 @@ export default {
 
           console.log(this.meetingSession.audioVideo.getAllRemoteVideoTiles());
 
-          await this.updateVideo();
+          // await this.updateVideo();
         },
       };
 
@@ -600,6 +593,10 @@ export default {
           // video tile bound 수행
           // else {
             var tmp_element = await document.getElementById('main-video-' + i);
+            console.log("-------------------------------");
+            console.log(this.attendeeTile[i].tileState.boundExternalUserId);
+            console.log(tmp_element);
+            console.log("-------------------------------");
             await this.meetingSession.audioVideo.bindVideoElement(this.attendeeTile[i].tileState.tileId, tmp_element);
             console.log('bound video id : ' + this.attendeeTile[i].tileState.boundExternalUserId);
           // }
@@ -814,9 +811,9 @@ export default {
       await this.joinMeeting();
       }
     },
-    // async updated() {
-    //   await this.updateVideo();
-    // },
+    async updated() {
+      await this.updateVideo();
+    },
     props: {
     }
   }
