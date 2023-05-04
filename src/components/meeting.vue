@@ -46,7 +46,7 @@
               <ul class="dropdown-menu config-dropdown" aria-labelledby="dropdownMenuButton1">
                 <li v-for="(item, index) in videoInputDevices" :key="item">
                   <a class="dropdown-item" href="#"
-                    @click="selectedDevice.videoInput.label = item.label; selectedDevice.videoInput.index = index;">
+                    @click="togglePreviewVideoInput(item, index)">
                     {{ item.label }}
                   </a>
                 </li>
@@ -409,10 +409,22 @@ export default {
       // video input device list를 불러옴
       this.videoInputDevices = await this.meetingSession.audioVideo.listVideoInputDevices();
 
-      // video input device 선택
-      await this.meetingSession.audioVideo.startVideoInput(this.videoInputDevices[this.selectedDevice.videoInput.index].deviceId)
+      await this.meetingSession.audioVideo.startVideoInput(this.videoInputDevices[this.selectedDevice.videoInput.index].deviceId);
 
       // video 미리보기
+      await this.meetingSession.audioVideo.startVideoPreviewForVideoInput(this.previewVideo);
+    },
+    // 프리뷰 화면 VideoInput 변경
+    async togglePreviewVideoInput(item, index) {
+      // 프리뷰 종료
+      await this.meetingSession.audioVideo.stopVideoPreviewForVideoInput(this.previewVideo);
+
+      // 선택 VideoInput 변경
+      this.selectedDevice.videoInput.label = item.label; 
+      this.selectedDevice.videoInput.index = index;
+
+      // 프리뷰 재시작
+      await this.meetingSession.audioVideo.startVideoInput(this.videoInputDevices[this.selectedDevice.videoInput.index].deviceId);
       await this.meetingSession.audioVideo.startVideoPreviewForVideoInput(this.previewVideo);
     },
     // 프리뷰 화면 <-> 회의 진행 화면
@@ -427,16 +439,16 @@ export default {
       const audio = document.getElementById('meeting-audio');
       const localVideo = document.getElementById('local-video');
 
+      // video input device 선택 (최종, 회의 시 사용)
+      await this.meetingSession.audioVideo.startVideoInput(this.videoInputDevices[this.selectedDevice.videoInput.index].deviceId);
+
       // Subscribe to Attendees Joining/Leaving the meeting
       const attendeesCallback = async (presentAttendeeId, present) => {
         // console.log(`Attendee ID: ${presentAttendeeId} Present: ${present}`);
-        // TODO handling for attendees joining/leaving
         if (present) { // An attendee joins the call
           this.attendeeCount = this.attendeeCount + 1;
-          // console.log('this.attendeeCount : ' + this.attendeeCount);
-        } else { // An attendee leaves the call
+        } else { 
           this.attendeeCount = this.attendeeCount - 1;
-          // console.log('this.attendeeCount : ' + this.attendeeCount);
         }
         await this.updateVideo();
       };
@@ -447,32 +459,19 @@ export default {
       const videoObserver = {
         // 동영상 타일이 생성되거나 업데이트될 때마다 호출됨
         videoTileDidUpdate: async (tileState) => {
-          // console.log("%cVideoTileDidUpdate()", "color: green", tileState);
           console.log("%cVideoTileDidUpdate()", "color: green");
 
-          // Ignore a tile without attendee ID and other attendee's tile.
           if (!tileState.boundAttendeeId && !tileState.localTile) {
             return;
           }
 
-          // Checking whether to render as local preview or main video
           let videoObj = tileState.localTile ? localVideo : null;
           if (videoObj) {
             await this.meetingSession.audioVideo.bindVideoElement(tileState.tileId, videoObj);
             videoObj.tileId = tileState.active ? tileState.tileId : null;
           }
           else {
-            // console.log(tileState.tileId + " : ", tileState.boundExternalUserId);
-            // this.attendeeTile[tileState.tileId] = {
-            //   tileState: tileState,
-            //   externalUserId: tileState.boundExternalUserId
-            // };
-
             this.attendeeTile = await this.meetingSession.audioVideo.getAllRemoteVideoTiles();
-            
-            console.log(this.attendeeTile.length);
-            console.log(this.attendeeCount - 1);
-            // if(this.attendeeTile.length == (this.attendeeCount - 1)) return;
 
             // // 현재 tile이 이미 bind 되어있다면, tile 배열에 추가하지 않는다.
             // if(tileState.boundVideoElement) return;
@@ -481,17 +480,8 @@ export default {
             //   externalUserId: tileState.boundExternalUserId
             // });
 
-
             console.log(this.meetingSession.audioVideo.getAllRemoteVideoTiles());
-
-            console.log("attendee Tile PUSH ", tileState.boundExternalUserId);
-
-            // console.log("참여자 수 : " + this.attendeeCount);
-            // console.log("원격 수(after) : " + this.attendeeTile.length);
-
           }
-
-          // await this.updateVideo();
         },
         // 동영상 타일이 제거될 때 호출됨
         videoTileWasRemoved: async (tileId) => {
@@ -507,8 +497,6 @@ export default {
           this.attendeeTile = await this.meetingSession.audioVideo.getAllRemoteVideoTiles();
 
           console.log(this.meetingSession.audioVideo.getAllRemoteVideoTiles());
-
-          // await this.updateVideo();
         },
       };
 
@@ -576,33 +564,19 @@ export default {
         })
     },
     async updateVideo() {
-      // console.log(this.attendeeCount + " " + this.attendeeTile.length);
-      // if (this.attendeeCount > 1) {
+      // 원격 참여자가 존재할 때만 수행함
       if (this.attendeeTile.length >= 1) {
-        // this.test = this.meetingSession.audioVideo.getAllRemoteVideoTiles();
-        // console.log(this.meetingSession.audioVideo.getAllRemoteVideoTiles());
-        // console.log("updated attendeeCount : " + this.attendeeCount);
-
         // 원격 video의 개수만큼 반복
         for (let i = 0; i < this.attendeeTile.length; i++) {
-          // video tile bound가 이미 되어있음
-          // if (this.attendeeTile[i].tileState.boundVideoElement) {
-          //   console.log("⭐ already bound tileId : " + this.attendeeTile[i].tileState.boundExternalUserId);
-          // }
-
           // video tile bound 수행
-          // else {
-            var tmp_element = await document.getElementById('main-video-' + i);
-            console.log("-------------------------------");
-            console.log(this.attendeeTile[i].tileState.boundExternalUserId);
-            console.log(tmp_element);
-            console.log("-------------------------------");
-            await this.meetingSession.audioVideo.bindVideoElement(this.attendeeTile[i].tileState.tileId, tmp_element);
-            console.log('bound video id : ' + this.attendeeTile[i].tileState.boundExternalUserId);
-          // }
+          var tmp_element = await document.getElementById('main-video-' + i);
+          await this.meetingSession.audioVideo.bindVideoElement(this.attendeeTile[i].tileState.tileId, tmp_element);
+          console.log('bound video id : ' + this.attendeeTile[i].tileState.boundExternalUserId);
         }
       }
     },
+
+    // Video toggle
     async toggleMuteAudio() {
       // mute X -> mute O
       if (!this.deviceMute.mic) {
@@ -792,7 +766,7 @@ export default {
       await this.meetingSession.audioVideo.chooseAudioOutput();
       await this.meetingSession.audioVideo.stop();
 
-      this.$router.go(-1);
+      this.$router.push("/userMain");
     },
   },
   async created() {
@@ -812,6 +786,7 @@ export default {
       }
     },
     async updated() {
+      // chime의 video observer 내 코드는 DOM 생성 전에 수행되므로, updated 훅에서 videoTile 레이아웃 수정 및 bindVideoElement를 수행하도록 함
       await this.updateVideo();
     },
     props: {

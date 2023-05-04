@@ -165,6 +165,11 @@
     margin: 0px 20px 10px 0px;
 }
 
+.meeting-attendee-all:hover {
+    align-self: end;
+    margin: 0px 20px 10px 0px;
+}
+
 .main-video {
     width: 25%;
     /* height: 12em; */
