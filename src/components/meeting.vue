@@ -144,10 +144,17 @@
 
       <!-- 수강생 -->
       <!-- 임시 : 상대방들 -->
-      <div class="student-video-container" v-if="attendeeCount > 1">
-        <video class="main-video" :id="'main-video-' + (i - 1)" v-for="i in (attendeeCount - 1)" :key="i">
+      <div class="student-video-container" v-if="attendeeTile.length >= 1">
+        <video class="main-video" :id="'main-video-' + (i - 1)" v-for="i in attendeeTile.length" :key="i">
         </video>
       </div>
+
+      <!-- 모든 참여자 확인 -->
+      <!-- <div class="meeting-attendee-all">
+        <img
+        style="width: 80px;"
+        :src="require('@/img/attendee_all.svg')">
+      </div> -->
 
     </div>
 
@@ -178,9 +185,14 @@
 
   <div class="test-container">
     <div v-for="i in attendeeTile" :key="i">
-      &nbsp;&nbsp;&nbsp;{{i.externalUserId}}
+      &nbsp;&nbsp;&nbsp;{{i.tileState.boundExternalUserId}}
     </div>
 
+    <!-- <div v-for="i in test" :key="i">
+      &nbsp;&nbsp;&nbsp;{{i}}
+    </div> -->
+
+    <!-- <div>{{ test }}</div> -->
     <div class="container-fluid">
       <div>
         <form>
@@ -254,6 +266,7 @@ export default {
   name: 'meeting',
   data() {
     return {
+      test: [],
       msg: "",
       obj: null,
       configureState: true,
@@ -298,7 +311,7 @@ export default {
         }
       ]
       */
-      attendeeTile: [], // 참석자 video tile 배열 (DOM 생성 전에 구성됨)
+      attendeeTile: null, // 참석자 video tile 배열 (DOM 생성 전에 구성됨)
       attendeeCount: 0, // 현재 참석자 수
 
       selectedDevice: {
@@ -456,27 +469,32 @@ export default {
             videoObj.tileId = tileState.active ? tileState.tileId : null;
           }
           else {
-            console.log(tileState.tileId + " : ", tileState.boundExternalUserId);
+            // console.log(tileState.tileId + " : ", tileState.boundExternalUserId);
             // this.attendeeTile[tileState.tileId] = {
             //   tileState: tileState,
             //   externalUserId: tileState.boundExternalUserId
             // };
+
+            this.attendeeTile = await this.meetingSession.audioVideo.getAllRemoteVideoTiles();
             
-            console.log("attendee Tile PUSH");
+            console.log(this.attendeeTile.length);
+            console.log(this.attendeeCount - 1);
+            // if(this.attendeeTile.length == (this.attendeeCount - 1)) return;
 
-            console.log("원격 수(before) : " + this.attendeeTile.length);
+            // // 현재 tile이 이미 bind 되어있다면, tile 배열에 추가하지 않는다.
+            // if(tileState.boundVideoElement) return;
+            // this.attendeeTile.push({
+            //   tileState: tileState,
+            //   externalUserId: tileState.boundExternalUserId
+            // });
 
-            if(this.attendeeTile.length == (this.attendeeCount - 1)) return;
 
-            // 현재 tile이 이미 bind 되어있다면, tile 배열에 추가하지 않는다.
-            if(tileState.boundVideoElement) return;
-            this.attendeeTile.push({
-              tileState: tileState,
-              externalUserId: tileState.boundExternalUserId
-            });
+            console.log(this.meetingSession.audioVideo.getAllRemoteVideoTiles());
 
-            console.log("참여자 수 : " + this.attendeeCount);
-            console.log("원격 수(after) : " + this.attendeeTile.length);
+            console.log("attendee Tile PUSH ", tileState.boundExternalUserId);
+
+            // console.log("참여자 수 : " + this.attendeeCount);
+            // console.log("원격 수(after) : " + this.attendeeTile.length);
 
           }
 
@@ -492,7 +510,11 @@ export default {
 
           this.meetingSession.audioVideo.removeVideoTile(tileId);
           this.meetingSession.audioVideo.unbindVideoElement(tileId);
-          this.attendeeTile = this.attendeeTile.filter(id => id.tileState.tileId !== tileId);
+          // this.attendeeTile = this.attendeeTile.filter(id => id.tileState.tileId !== tileId);
+          this.attendeeTile = await this.meetingSession.audioVideo.getAllRemoteVideoTiles();
+
+          console.log(this.meetingSession.audioVideo.getAllRemoteVideoTiles());
+
           await this.updateVideo();
         },
       };
@@ -564,29 +586,22 @@ export default {
       // console.log(this.attendeeCount + " " + this.attendeeTile.length);
       // if (this.attendeeCount > 1) {
       if (this.attendeeTile.length >= 1) {
-        console.log("updated attendeeCount : " + this.attendeeCount);
+        // this.test = this.meetingSession.audioVideo.getAllRemoteVideoTiles();
+        // console.log(this.meetingSession.audioVideo.getAllRemoteVideoTiles());
+        // console.log("updated attendeeCount : " + this.attendeeCount);
 
+        // 원격 video의 개수만큼 반복
         for (let i = 0; i < this.attendeeTile.length; i++) {
-          // video tile 객체 존재 O
-          // if (this.attendeeTile[i]) {
-            // video tile bound가 이미 되어있음
-            if (this.attendeeTile[i].tileState.boundVideoElement) {
-              console.log("already bound tileId : " + i);
-              continue;
-            }
-            // video tile bound 수행
-            else {
-              var tmp_element = await document.getElementById('main-video-' + i);
-              await this.meetingSession.audioVideo.bindVideoElement(this.attendeeTile[i].tileState.tileId, tmp_element);
-              console.log('bound video id : ' + this.attendeeTile[i].tileState.tileId);
-
-              this.updateVideoDone = true;
-            }
+          // video tile bound가 이미 되어있음
+          // if (this.attendeeTile[i].tileState.boundVideoElement) {
+          //   console.log("⭐ already bound tileId : " + this.attendeeTile[i].tileState.boundExternalUserId);
           // }
-          // video tile 객체 존재 X -> update false
+
+          // video tile bound 수행
           // else {
-          //   console.log("failed bound video " + i);
-          //   this.updateVideoDone = false;
+            var tmp_element = await document.getElementById('main-video-' + i);
+            await this.meetingSession.audioVideo.bindVideoElement(this.attendeeTile[i].tileState.tileId, tmp_element);
+            console.log('bound video id : ' + this.attendeeTile[i].tileState.boundExternalUserId);
           // }
         }
       }
@@ -609,7 +624,7 @@ export default {
       // stop video
       if (!this.deviceMute.camera) {
         await this.meetingSession.audioVideo.stopLocalVideoTile();
-        await this.meetingSession.audioVideo.removeLocalVideoTile();
+        // await this.meetingSession.audioVideo.removeLocalVideoTile();
         this.deviceMute.camera = !this.deviceMute.camera;
       }
       // start video
@@ -794,19 +809,19 @@ export default {
       this.admin = true;
       await this.createMeeting();
     }
-    // user일 경우, 강의명을 이용하여 MeetingId를 찾아 참가자
+    // user일 경우, 강의명을 이용하여 MeetingId를 찾아 참가
     else {
       await this.joinMeeting();
+      }
+    },
+    // async updated() {
+    //   await this.updateVideo();
+    // },
+    props: {
     }
-  },
-  async updated() {
-    await this.updateVideo();
-  },
-  props: {
   }
-}
-</script>
-  
-<style>
-@import "@/css/config.css";
-</style>
+  </script>
+    
+  <style>
+  @import "@/css/config.css";
+  </style>
