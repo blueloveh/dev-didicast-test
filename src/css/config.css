@@ -117,12 +117,13 @@
     height: 80%;
     background: #181b1f;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .lecture-video-container {
-    width: 50%;
-    height: 100%;
+    width: 100%;
     background: #181b1f;
 
     display: flex;
@@ -131,13 +132,15 @@
 }
 
 .lecture-video-container > video {
-    width: 50vw;
+    width: 30%;
     height: 100%;
     background: #181b1f;
 
     display: flex;
     align-items: center;
     justify-content: center;
+
+    border-radius: 15px;
 }
 
 .lecture-video-container-alone {
@@ -150,14 +153,18 @@
     justify-content: center;
 }
 
+.lecture-video-container-alone > video {
+    border-radius: 15px;
+}
+
 .student-video-container { 
-    width: 50%;
-    height: 100%;
+    width: 100%;
     background: #181b1f;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: flex-end;
+    padding: 20px;
 }
 
 .meeting-attendee-all {
@@ -171,18 +178,66 @@
 }
 
 .main-video {
-    width: 25%;
-    /* height: 12em; */
-    flex: 1 1 calc(40% - 2px);
+    flex: 1 1 calc(15% - 2px);
+    margin: 2px;
+}
+
+.main-video > video {
+    width: 100%;
+    /* flex: 1 1 calc(15% - 2px); */
     margin: 2px;
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: flex-end;
+    border-radius: 15px;
+    background-color: #2C2C30;
+    height: 100%;
+}
+
+.waiting {
+    width: 100%;
+    min-height: 170px;
+    /* flex: 1 1 calc(15% - 2px); */
+    margin: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    border-radius: 15px;
+    background-color: #2C2C30;
+    height: 100%;
+    align-items: center;
+    color: #d9d9d9;
 }
 
 .local-video {
     align-items: center;
     justify-content: center;
+}
+
+.main-video-userId {
+    display: flex;
+    margin: 5px 0px -50px 0px;
+    color: white;
+    float: right;
+    background: rgba(0, 0, 0, 30%);
+    border: 1px solid transparent;
+    border-radius: 30px;
+    padding: 5px 20px;
+    position: relative;
+}
+
+.local-video-userId {
+    display: flex;
+    margin: 5px 0px -50px 0px;
+    color: white;
+    float: right;
+    background: rgba(0, 0, 0, 30%);
+    border: 1px solid transparent;
+    border-radius: 30px;
+    padding: 5px 20px;
+    z-index: 9999;
+    /* align-self: flex-end; */
+    position: relative;
 }
 
 .video-footer {

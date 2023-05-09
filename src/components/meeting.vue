@@ -25,10 +25,8 @@
 
           <!-- mute -->
           <div class="config-img-container">
-            <img @click="deviceMute.camera = true"
-            class="config-img-camera" :src="require('@/img/camera.svg')" />
-            <img @click="deviceMute.mic = true"
-            class="config-img-mic" :src="require('@/img/mic.svg')" />
+            <img @click="deviceMute.camera = true" class="config-img-camera" :src="require('@/img/camera.svg')" />
+            <img @click="deviceMute.mic = true" class="config-img-mic" :src="require('@/img/mic.svg')" />
           </div>
         </div>
 
@@ -45,8 +43,7 @@
               </button>
               <ul class="dropdown-menu config-dropdown" aria-labelledby="dropdownMenuButton1">
                 <li v-for="(item, index) in videoInputDevices" :key="item">
-                  <a class="dropdown-item" href="#"
-                    @click="togglePreviewVideoInput(item, index)">
+                  <a class="dropdown-item" href="#" @click="togglePreviewVideoInput(item, index)">
                     {{ item.label }}
                   </a>
                 </li>
@@ -132,18 +129,37 @@
 
     <!-- 80% -->
     <div class="video-container">
+      <!-- 11명까지 table, 이후는 12+로 video 따로 보이지 않아도 됨 -->
+      <!-- 상대방들 -->
+      <div class="student-video-container" v-if="attendeeTile.length >= 1">
+        <!-- <video class="main-video" :id="'main-video-' + (i - 1)" v-for="i in attendeeTile.length" :key="i"> -->
+        <div class="main-video"  v-for="i in attendeeTile.length" :key="i">
+          <span class="main-video-userId">
+            {{ attendeeTile[i - 1].tileState.boundExternalUserId }}
+          </span>
+          <video :id="'main-video-' + (i - 1)">
+          </video>
+        </div>
+
+        <div class="main-video" v-for="i in (11 - attendeeTile.length)" :key="i">
+          <!-- <video autoplay="true" :src="require('./test.mp4')" >
+          </video> -->
+          <span class="waiting">
+            Waiting for attendee...
+          </span>
+          <!-- <img class="waiting" :src="require('../img/waiting.svg')"/> -->
+        </div>
+      </div>
+
       <!-- 본인 -->
       <div :class="{
         'lecture-video-container-alone': attendeeCount == 1,
         'lecture-video-container': attendeeCount > 1
       }">
+        <!-- <span class="local-video-userId">
+          {{ username }}
+        </span> -->
         <video id="local-video" class="local-video">
-        </video>
-      </div>
-
-      <!-- 상대방들 -->
-      <div class="student-video-container" v-if="attendeeTile.length >= 1">
-        <video class="main-video" :id="'main-video-' + (i - 1)" v-for="i in attendeeTile.length" :key="i">
         </video>
       </div>
 
@@ -169,7 +185,7 @@
       <img class="video-footer-img" v-if="!record && admin" @click="recordMeeting(callbackRecordMeeting)"
         :src="require('@/img/record.svg')" />
 
-      <img class="video-footer-img" v-if="record && admin" @click="stopCallback(); record = false; "
+      <img class="video-footer-img" v-if="record && admin" @click="stopCallback(); record = false;"
         :src="require('@/img/record_stop.svg')" />
       <p class="m-5" v-if="admin">{{ recordMessage }}</p>
 
@@ -183,7 +199,7 @@
 
   <div class="test-container">
     <div v-for="i in attendeeTile" :key="i">
-      &nbsp;&nbsp;&nbsp;{{i.tileState.boundExternalUserId}}
+      &nbsp;&nbsp;&nbsp;{{ i.tileState.boundExternalUserId }}
     </div>
 
     <!-- <div v-for="i in test" :key="i">
@@ -306,6 +322,7 @@ export default {
       */
       attendeeTile: null, // 참석자 video tile 배열 (DOM 생성 전에 구성됨)
       attendeeCount: 0, // 현재 참석자 수
+      attendeeTileCheck: Array(11),
 
       selectedDevice: {
         videoInput: {
@@ -420,7 +437,7 @@ export default {
       await this.meetingSession.audioVideo.stopVideoPreviewForVideoInput(this.previewVideo);
 
       // 선택 VideoInput 변경
-      this.selectedDevice.videoInput.label = item.label; 
+      this.selectedDevice.videoInput.label = item.label;
       this.selectedDevice.videoInput.index = index;
 
       // 프리뷰 재시작
@@ -446,9 +463,11 @@ export default {
       const attendeesCallback = async (presentAttendeeId, present) => {
         // console.log(`Attendee ID: ${presentAttendeeId} Present: ${present}`);
         if (present) { // An attendee joins the call
+          this.attendeeTileCheck[this.attendeeCount] = true;
           this.attendeeCount = this.attendeeCount + 1;
-        } else { 
+        } else {
           this.attendeeCount = this.attendeeCount - 1;
+          this.attendeeTileCheck[this.attendeeCount] = false;
         }
         await this.updateVideo();
       };
@@ -713,9 +732,9 @@ export default {
           'Content-Type': 'multipart/form-data',
         }
       })
-      .then((res) => {
+        .then((res) => {
           this.recordMessage = "라이브 클라우드 저장됨 : " + today;
-      });
+        });
 
       // array blob 전송
       // await axios.post('http://ec2-43-200-233-190.ap-northeast-2.compute.amazonaws.com:3001/api/chime/save/video', {
@@ -728,7 +747,7 @@ export default {
       //   // var res = Object.values(response.data);
       //   // res = new Uint8Array(res);
       //   // const a = new Blob([res], { type: this.blob.type });
-        
+
       //   // var url = URL.createObjectURL(a);
       //   // var video = document.getElementById('blob');
       //   // video.src = url;
@@ -758,7 +777,7 @@ export default {
 
     // 강의 나가기
     async meetingExit() {
-      if(this.admin) this.deleteMeeting();
+      if (this.admin) this.deleteMeeting();
 
       // 장비 해제
       await this.meetingSession.audioVideo.stopVideoInput();
@@ -783,17 +802,17 @@ export default {
     // user일 경우, 강의명을 이용하여 MeetingId를 찾아 참가
     else {
       await this.joinMeeting();
-      }
-    },
-    async updated() {
-      // chime의 video observer 내 코드는 DOM 생성 전에 수행되므로, updated 훅에서 videoTile 레이아웃 수정 및 bindVideoElement를 수행하도록 함
-      await this.updateVideo();
-    },
-    props: {
     }
+  },
+  async updated() {
+    // chime의 video observer 내 코드는 DOM 생성 전에 수행되므로, updated 훅에서 videoTile 레이아웃 수정 및 bindVideoElement를 수행하도록 함
+    await this.updateVideo();
+  },
+  props: {
   }
-  </script>
+}
+</script>
     
-  <style>
-  @import "@/css/config.css";
-  </style>
+<style>
+@import "@/css/config.css";
+</style>
