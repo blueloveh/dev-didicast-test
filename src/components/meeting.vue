@@ -25,8 +25,15 @@
 
           <!-- mute -->
           <div class="config-img-container">
-            <img @click="deviceMute.camera = true" class="config-img-camera" :src="require('@/img/camera.svg')" />
-            <img @click="deviceMute.mic = true" class="config-img-mic" :src="require('@/img/mic.svg')" />
+            <img v-if="deviceMute.camera == false"
+            @click="deviceMute.camera = true" class="config-img-camera" :src="require('@/img/camera.svg')" />
+            <img v-if="deviceMute.camera == true"
+            @click="deviceMute.camera = false" class="config-img-camera" :src="require('@/img/camera_mute.svg')" />
+
+            <img v-if="deviceMute.mic == false"
+            @click="deviceMute.mic = true" class="config-img-mic" :src="require('@/img/mic.svg')" />
+            <img v-if="deviceMute.mic == true"
+            @click="deviceMute.mic = false" class="config-img-mic" :src="require('@/img/mic_mute.svg')" />
           </div>
         </div>
 
@@ -447,6 +454,10 @@ export default {
     // 프리뷰 화면 <-> 회의 진행 화면
     async toggleConfigureState() {
       this.configureState = !this.configureState;
+      // this.deviceMute.camera = !this.deviceMute.camera;
+      this.deviceMute.mic = !this.deviceMute.mic;
+      this.toggleMuteAudio();
+      // this.toggleStopVideo();
     },
     // 회의 세션 시작
     async meetingSessionStart() {
@@ -545,7 +556,9 @@ export default {
 
       // video tile start 함수가 start 함수 이후에 실행되야 한다.
       await this.meetingSession.audioVideo.start();
-      await this.meetingSession.audioVideo.startLocalVideoTile();
+      if(!this.deviceMute.camera) {
+        await this.meetingSession.audioVideo.startLocalVideoTile();
+      }
     },
     // 회의 참가
     async joinMeeting() {
